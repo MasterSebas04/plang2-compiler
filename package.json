@@ -1,0 +1,28 @@
+{
+  "name": "salamis",
+  "version": "0.0.1",
+  "description": "A compiler for SALAMIS, a programming language by Sammy, Laith, Marcus, and Sebastian",
+  "main": "src/salamis.js",
+  "scripts": {
+    "test": "c8 node --test test/**/*.test.js"
+  },
+  "keywords": [
+    "compiler",
+    "interpreter",
+    "language"
+  ],
+  "contributors": [
+    "Sammy",
+    "Laith",
+    "Marcus",
+    "Sebastian Lange"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "ohm-js": "^17.5.0"
+  },
+  "devDependencies": {
+    "c8": "^11.0.0"
+  }
+}
