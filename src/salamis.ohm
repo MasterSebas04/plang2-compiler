@@ -1,0 +1,98 @@
+Salamis {
+    Program = Statement*
+
+    VarDecl    = let id (":" Type)? "=" Exp newline
+    AssignStmt = id "=" Exp newline
+
+    FunDecl    = fn id "(" Params ")" ("~>" Type)? Block
+    Params     = ListOf<Param, ",">
+    Param      = id ":" Type                               -- Do not make optional because we can not infer because no thing was passed to it
+
+    IfStmt     = if "(" Exp ")" Block else Block           --long
+               | if Exp Block else IfStmt                  --else if
+               | if Exp Block                              --short
+
+    ForStmt    = for id in "(" Range ")" Block             --range
+                | for id in "(" Exp ")" Block              --collection    // range as called by a fucntion
+                | for Block                         --infinite
+
+    Range      = Exp ".." Exp
+
+    
+
+    Block      = "{" newline Statement* "}"
+
+
+    Type = "Vec" "<" Type ">"       --vec
+        | "Matrix" "<" Type ">"    --matrix
+        | "Int"                    --int
+        | "Float"                  --float
+        | "Bool"                   --bool
+        | "Str"                    --str
+        | "Normal"                 --normal       // Distributions
+        | "Bernoulli"              --bernoulli
+        | "Poisson"                --poisson
+        | "Uniform"                --uniform
+
+
+
+    Exp  = Exp "|>" Exp1                     --pipe
+     | Exp1
+
+    Exp1 = Exp1 relop Exp2                  --compare
+        | Exp2
+
+    Exp2 = Exp2 "+" Exp3                     --add
+        | Exp2 "-" Exp3                     --sub
+        | Exp3
+
+    Exp3 = Exp3 "*" Exp4                     --mul
+        | Exp3 "/" Exp4                     --div
+        | Exp4
+
+    Exp4 = Exp4 "@" Exp5                     --matmul
+        | Exp5
+
+    Exp5 = neg "(" Exp5 ")"                  --negate
+        | slice id "(" Range ")"             --slicerange // Only allows slicing on plane variable names
+        | slice id "(" Exp ")"              --sliceindex  
+        | Primary
+
+    Primary = floatnum                    // 3.14
+            | num                         // 3
+            | true                        // true
+            | false                       // false
+            | stringlit                   // "hello"
+            | vector                      // [1.0, 2.0, 3.0]
+            | id "(" Args ")"   --call    // mean(data), Normal(μ, σ). Function call by id name and arguments within it
+            | id                --id      // x, μ, myVar
+            | "(" Exp ")"       --parens  // (x + y)
+    
+    Args   = ListOf<Exp, ",">
+    relop = "<=" | ">=" | "<" | ">" | "==" | "!="
+    newline = "\n"+ 
+
+    let = "let" ~alnum
+    fn = "fn" ~alnum
+    if = "if" ~alnum
+    else = "else" ~alnum
+    for = "for" ~alnum
+    in = "in" ~alnum
+    return = "return" ~alnum
+    slice = "slice" ~alnum
+    true = "true" ~alnum
+    false = "false" ~alnum
+    neg = "neg" ~alnum
+    
+    keyword = let | fn | if | else | for | in | return | slice | true | false | neg
+
+
+    id          = ~keyword (letter | greekLetter) (alnum | "_")*
+    greekLetter = "μ" | "σ" | "λ" | "Σ" | "α" | "β" | "π"
+
+
+    space      += comment
+    comment     = "--" (~"\n" any)*
+
+
+}
