@@ -101,3 +101,47 @@ export function strLiteral(value) {
 export function printStmt(exp) {
   return { kind: "PrintStatement", exp }
 }
+
+// Type descriptors exported for use in builtins and tests
+export const INT   = { kind: "Int" }
+export const FLOAT = { kind: "Float" }
+export const BOOL  = { kind: "Bool" }
+export const STR   = { kind: "Str" }
+export const VOID  = { kind: "Void" }
+export const VEC_FLOAT = { kind: "Vec", inner: FLOAT }
+export const VEC_INT   = { kind: "Vec", inner: INT }
+
+// Distribution type descriptors
+export function distType(name, params) { return { kind: "Dist", name, params } }
+export const DIST_NORMAL    = distType("Normal",    [FLOAT, FLOAT])
+export const DIST_BERNOULLI = distType("Bernoulli", [FLOAT])
+export const DIST_POISSON   = distType("Poisson",   [FLOAT])
+export const DIST_UNIFORM   = distType("Uniform",   [FLOAT, FLOAT])
+
+// Built-in function objects — single source of truth for analyzer + generator
+export const builtins = new Map([
+  // Math
+  ["sqrt",     functionObject("sqrt",     [param("x", FLOAT)], FLOAT)],
+  ["log",      functionObject("log",      [param("x", FLOAT)], FLOAT)],
+  ["log2",     functionObject("log2",     [param("x", FLOAT)], FLOAT)],
+  ["log10",    functionObject("log10",    [param("x", FLOAT)], FLOAT)],
+  ["abs",      functionObject("abs",      [param("x", FLOAT)], FLOAT)],
+  ["exp",      functionObject("exp",      [param("x", FLOAT)], FLOAT)],
+  ["floor",    functionObject("floor",    [param("x", FLOAT)], INT)],
+  ["ceil",     functionObject("ceil",     [param("x", FLOAT)], INT)],
+  ["round",    functionObject("round",    [param("x", FLOAT)], INT)],
+  ["sin",      functionObject("sin",      [param("x", FLOAT)], FLOAT)],
+  ["cos",      functionObject("cos",      [param("x", FLOAT)], FLOAT)],
+  ["pow",      functionObject("pow",      [param("base", FLOAT), param("exp", FLOAT)], FLOAT)],
+  // Vec
+  ["len",      functionObject("len",      [param("v", VEC_FLOAT)], INT)],
+  ["sum",      functionObject("sum",      [param("v", VEC_FLOAT)], FLOAT)],
+  ["mean",     functionObject("mean",     [param("v", VEC_FLOAT)], FLOAT)],
+  ["max",      functionObject("max",      [param("v", VEC_FLOAT)], FLOAT)],
+  ["min",      functionObject("min",      [param("v", VEC_FLOAT)], FLOAT)],
+  // Distribution constructors
+  ["Normal",    functionObject("Normal",    [param("mu", FLOAT), param("sigma", FLOAT)], DIST_NORMAL)],
+  ["Bernoulli", functionObject("Bernoulli", [param("p", FLOAT)],                         DIST_BERNOULLI)],
+  ["Poisson",   functionObject("Poisson",   [param("lambda", FLOAT)],                    DIST_POISSON)],
+  ["Uniform",   functionObject("Uniform",   [param("a", FLOAT), param("b", FLOAT)],      DIST_UNIFORM)],
+])

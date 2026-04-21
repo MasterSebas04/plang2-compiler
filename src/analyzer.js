@@ -90,6 +90,9 @@ function validateVecOrMatrix(t, at) {
 
 export default function analyze(match) {
   let context = new Context()
+  for (const [name, fun] of core.builtins) {
+    context.set(name, fun, { getLineAndColumnMessage: () => "" })
+  }
 
   const grammar = match.matcher.grammar
 
@@ -333,6 +336,17 @@ export default function analyze(match) {
     },
 
     Primary_call(id, _open, args, _close) {
+      // sample(d) is a special form — accepts any distribution type, returns Float
+      if (id.sourceString === "sample") {
+        const argValues = args.asIteration().children.map(a => a.analyze())
+        validate(argValues.length === 1, `sample expects 1 argument`, id.source)
+        validate(
+          (argValues[0].type ?? argValues[0]).kind === "Dist",
+          `sample expects a distribution, got ${typeString(argValues[0].type ?? argValues[0])}`,
+          id.source
+        )
+        return core.functionCall({ kind: "FunctionObject", name: "sample" }, argValues, FLOAT)
+      }
       const fun = context.get(id.sourceString, id.source)
       validate(fun.kind === "FunctionObject", `${id.sourceString} is not a function`, id.source)
       const argValues = args.asIteration().children.map(a => a.analyze())

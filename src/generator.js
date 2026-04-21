@@ -1,3 +1,55 @@
+// Maps Salamis builtin names to their JS equivalents
+const jsBuiltins = new Map([
+  ["sqrt",  "Math.sqrt"],
+  ["log",   "Math.log"],
+  ["log2",  "Math.log2"],
+  ["log10", "Math.log10"],
+  ["abs",   "Math.abs"],
+  ["exp",   "Math.exp"],
+  ["floor", "Math.floor"],
+  ["ceil",  "Math.ceil"],
+  ["round", "Math.round"],
+  ["sin",   "Math.sin"],
+  ["cos",   "Math.cos"],
+  ["pow",   "Math.pow"],
+  ["len",      "__len"],
+  ["sum",      "__sum"],
+  ["mean",     "__mean"],
+  ["max",      "__max"],
+  ["min",      "__min"],
+  ["Normal",   "__Normal"],
+  ["Bernoulli","__Bernoulli"],
+  ["Poisson",  "__Poisson"],
+  ["Uniform",  "__Uniform"],
+  ["sample",   "__sample"],
+])
+
+const builtinPreamble = `\
+function __len(v) { return v.length }
+function __sum(v) { return v.reduce((a, b) => a + b, 0) }
+function __mean(v) { return __sum(v) / v.length }
+function __max(v) { return Math.max(...v) }
+function __min(v) { return Math.min(...v) }
+function __Normal(mu, sigma) { return { kind: "Normal", mu, sigma } }
+function __Bernoulli(p) { return { kind: "Bernoulli", p } }
+function __Poisson(lambda) { return { kind: "Poisson", lambda } }
+function __Uniform(a, b) { return { kind: "Uniform", a, b } }
+function __sample(d) {
+  if (d.kind === "Normal") {
+    const u1 = Math.random(), u2 = Math.random()
+    return d.mu + d.sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
+  }
+  if (d.kind === "Bernoulli") return Math.random() < d.p ? 1.0 : 0.0
+  if (d.kind === "Poisson") {
+    const L = Math.exp(-d.lambda)
+    let k = 0, p = 1.0
+    do { k++; p *= Math.random() } while (p > L)
+    return k - 1
+  }
+  if (d.kind === "Uniform") return d.a + Math.random() * (d.b - d.a)
+  throw new Error("Unknown distribution: " + d.kind)
+}`
+
 export default function generate(program) {
   const output = []
 
@@ -41,6 +93,7 @@ export default function generate(program) {
     },
 
     FunctionObject(f) {
+      if (jsBuiltins.has(f.name)) return jsBuiltins.get(f.name)
       return targetName(f)
     },
 
@@ -142,7 +195,7 @@ export default function generate(program) {
     StrLiteral(e) { return JSON.stringify(e.value) },
   }
 
-  // Emit the matmul runtime helper if needed — simple row-by-column multiply
+  output.push(builtinPreamble)
   output.push(`function __matmul(A, B) {
   const rows = A.length, cols = B[0].length, inner = B.length;
   return Array.from({length: rows}, (_, r) =>

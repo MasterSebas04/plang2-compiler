@@ -1,29 +1,28 @@
-fn sum(data: Vec<Float>) ~> Float {
-  let acc: Float = 0.0
-  for x in (data) {
-    acc = acc + x
-  }
-  return acc
-}
-
-fn mean(data: Vec<Float>) ~> Float {
-  let n: Float = 8.0
-  return sum(data) / n
-}
-
-fn variance(data: Vec<Float>) ~> Float {
-  let m: Float = mean(data)
-  let acc: Float = 0.0
-  for x in (data) {
-    let diff: Float = x - m
-    acc = acc + diff * diff
-  }
-  let n: Float = 8.0
-  return acc / n
-}
-
 let data: Vec<Float> = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]
+
 let avg = mean(data)
-let vari = variance(data)
+let lo = min(data)
+let hi = max(data)
+let total = sum(data)
+let n = len(data)
+
 print(avg)
-print(vari)
+print(lo)
+print(hi)
+print(total)
+print(n)
+
+let normal: Normal<Float, Float> = Normal(0.0, 1.0)
+let bernoulli: Bernoulli<Float> = Bernoulli(0.5)
+let poisson: Poisson<Float> = Poisson(3.0)
+let uniform: Uniform<Float, Float> = Uniform(0.0, 10.0)
+
+let s1 = sample(normal)
+let s2 = sample(bernoulli)
+let s3 = sample(poisson)
+let s4 = sample(uniform)
+
+print(s1)
+print(s2)
+print(s3)
+print(s4)
