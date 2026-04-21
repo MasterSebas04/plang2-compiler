@@ -13,19 +13,19 @@ const sourceCode = readFileSync(source, "utf-8")
 const needsHtml = /\bplot\s*\(/.test(sourceCode)
 const stem = basename(source, extname(source))
 
+// Always run the JS so print() output appears in the terminal
+const js = compile(sourceCode, "js")
+const jsFile = stem + ".js"
+writeFileSync(jsFile, js)
+execSync(`node ${jsFile}`, { stdio: "inherit" })
+
 if (needsHtml) {
   const html = compile(sourceCode, "html")
-  const outFile = stem + ".html"
-  writeFileSync(outFile, html)
-  console.log(`Written: ${outFile}`)
-  // Open in default browser (cross-platform best-effort)
+  const htmlFile = stem + ".html"
+  writeFileSync(htmlFile, html)
+  console.log(`Chart written: ${htmlFile}`)
   try {
     const open = process.platform === "win32" ? "start" : process.platform === "darwin" ? "open" : "xdg-open"
-    execSync(`${open} "${outFile}"`, { stdio: "ignore" })
+    execSync(`${open} "${htmlFile}"`, { stdio: "ignore" })
   } catch { /* silently skip if browser open fails */ }
-} else {
-  const js = compile(sourceCode, "js")
-  const outFile = stem + ".js"
-  writeFileSync(outFile, js)
-  execSync(`node ${outFile}`, { stdio: "inherit" })
 }
