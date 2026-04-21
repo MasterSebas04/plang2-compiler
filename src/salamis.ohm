@@ -1,20 +1,33 @@
 Salamis {
     Program = Statement*
 
+    Statement = VarDecl
+              | AssignStmt
+              | FunDecl
+              | IfStmt
+              | ForStmt
+              | ReturnStmt
+              | PrintStmt
+              | newline
+
+    PrintStmt = print "(" Exp ")" newline
+
+    ReturnStmt = return Exp newline
+
     VarDecl    = let id (":" Type)? "=" Exp newline
     AssignStmt = id "=" Exp newline
 
     FunDecl    = fn id "(" Params ")" ("~>" Type)? Block
     Params     = ListOf<Param, ",">
-    Param      = id ":" Type                               -- Do not make optional because we can not infer because no thing was passed to it
+    Param      = id ":" Type
 
-    IfStmt     = if "(" Exp ")" Block else Block           --long
-               | if Exp Block else IfStmt                  --else if
+    IfStmt     = if Exp Block else IfStmt                  --elseif
+               | if Exp Block else Block                   --long
                | if Exp Block                              --short
 
     ForStmt    = for id in "(" Range ")" Block             --range
                 | for id in "(" Exp ")" Block              --collection    // range as called by a fucntion
-                | for Block                         --infinite
+                | while Exp Block                   --while
 
     Range      = Exp ".." Exp
 
@@ -23,16 +36,17 @@ Salamis {
     Block      = "{" newline Statement* "}"
 
 
-    Type = "Vec" "<" Type ">"       --vec
-        | "Matrix" "<" Type ">"    --matrix
-        | "Int"                    --int
-        | "Float"                  --float
-        | "Bool"                   --bool
-        | "Str"                    --str
-        | "Normal"                 --normal       // Distributions
-        | "Bernoulli"              --bernoulli
-        | "Poisson"                --poisson
-        | "Uniform"                --uniform
+    Type = "Vec" "<" Type ">"                  --vec
+        | "Matrix" "<" Type ">"               --matrix
+        | "Normal" "<" Type "," Type ">"      --normal       // Distributions
+        | "Bernoulli" "<" Type ">"            --bernoulli
+        | "Poisson" "<" Type ">"              --poisson
+        | "Uniform" "<" Type "," Type ">"     --uniform
+        | "Int"                               --int
+        | "Float"                             --float
+        | "Bool"                              --bool
+        | "Str"                               --str
+        | "Void"                              --void
 
 
 
@@ -54,23 +68,27 @@ Salamis {
         | Exp5
 
     Exp5 = neg "(" Exp5 ")"                  --negate
-        | slice id "(" Range ")"             --slicerange // Only allows slicing on plane variable names
-        | slice id "(" Exp ")"              --sliceindex  
+        | slice Primary "(" Range ")"        --slicerange
+        | slice Primary "(" Exp ")"          --sliceindex
         | Primary
 
-    Primary = floatnum                    // 3.14
-            | num                         // 3
-            | true                        // true
-            | false                       // false
-            | stringlit                   // "hello"
-            | vector                      // [1.0, 2.0, 3.0]
-            | id "(" Args ")"   --call    // mean(data), Normal(μ, σ). Function call by id name and arguments within it
-            | id                --id      // x, μ, myVar
-            | "(" Exp ")"       --parens  // (x + y)
+    Primary = floatnum                       // 3.14
+            | num                            // 3
+            | true                           // true
+            | false                          // false
+            | stringlit                      // "hello"
+            | "[" ListOf<Exp, ","> "]"  --vec  // [1.0, 2.0, 3.0]
+            | id "(" Args ")"   --call       // mean(data), Normal(μ, σ)
+            | id                --id         // x, μ, myVar
+            | "(" Exp ")"       --parens     // (x + y)
     
     Args   = ListOf<Exp, ",">
     relop = "<=" | ">=" | "<" | ">" | "==" | "!="
-    newline = "\n"+ 
+    newline = "\n"+
+
+    floatnum  = digit+ "." digit+
+    num       = digit+
+    stringlit = "\"" (~"\"" any)* "\""
 
     let = "let" ~alnum
     fn = "fn" ~alnum
@@ -83,15 +101,19 @@ Salamis {
     true = "true" ~alnum
     false = "false" ~alnum
     neg = "neg" ~alnum
-    
-    keyword = let | fn | if | else | for | in | return | slice | true | false | neg
+    while = "while" ~alnum
+    print = "print" ~alnum
+
+    keyword = let | fn | if | else | for | in | return | slice | true | false | neg | while | print
 
 
     id          = ~keyword (letter | greekLetter) (alnum | "_")*
     greekLetter = "μ" | "σ" | "λ" | "Σ" | "α" | "β" | "π"
+                | "θ" | "ρ" | "φ" | "ε" | "η" | "ξ" | "ψ"
+                | "Γ" | "Δ" | "Ω"
 
 
-    space      += comment
+    space      := " " | "\t" | comment
     comment     = "--" (~"\n" any)*
 
 
