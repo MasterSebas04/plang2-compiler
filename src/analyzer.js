@@ -159,6 +159,17 @@ export default function analyze(match) {
       return core.printStmt(exp.analyze())
     },
 
+    PlotStmt(_plot, _open, exp, _close, _newline) {
+      const val = exp.analyze()
+      const t = val.type ?? val
+      validate(
+        t.kind === "Vec",
+        `plot expects a Vec, got ${typeString(t)}`,
+        exp.source
+      )
+      return core.plotStmt(val)
+    },
+
     ReturnStmt(_return, exp, _newline) {
       const value = exp.analyze()
       const valueType = value.type ?? value

@@ -102,6 +102,10 @@ export function printStmt(exp) {
   return { kind: "PrintStatement", exp }
 }
 
+export function plotStmt(exp) {
+  return { kind: "PlotStatement", exp }
+}
+
 // Type descriptors exported for use in builtins and tests
 export const INT   = { kind: "Int" }
 export const FLOAT = { kind: "Float" }

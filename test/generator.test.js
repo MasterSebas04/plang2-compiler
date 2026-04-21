@@ -138,6 +138,11 @@ const fixtures = [
     source: "let d: Normal<Float, Float> = Normal(0.0, 1.0)\nlet x = sample(d)\n",
     expected: "let d_1 = __Normal(0.0, 1.0);\nlet x_2 = __sample(d_1);",
   },
+  {
+    name: "plot statement emits nothing in js mode",
+    source: "let v: Vec<Float> = [1.0, 2.0, 3.0]\nplot(v)\n",
+    expected: "let v_1 = [1.0, 2.0, 3.0];",
+  },
 ]
 
 describe("The code generator", () => {

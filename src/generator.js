@@ -50,10 +50,11 @@ function __sample(d) {
   throw new Error("Unknown distribution: " + d.kind)
 }`
 
-export default function generate(program) {
+// Single generation pass — returns { js, plotExprs }
+function runGeneration(program) {
   const output = []
+  const plotExprs = []
 
-  // Greek and other non-JS identifiers get suffixed with _1, _2, etc.
   const targetName = (mapping => {
     return entity => {
       if (!mapping.has(entity)) {
@@ -80,6 +81,10 @@ export default function generate(program) {
 
     PrintStatement(s) {
       output.push(`console.log(${gen(s.exp)});`)
+    },
+
+    PlotStatement(s) {
+      plotExprs.push(gen(s.exp))
     },
 
     ReturnStatement(s) {
@@ -150,17 +155,14 @@ export default function generate(program) {
       return `(-(${gen(e.argument)}))`
     },
 
-    // Pipe: left |> right becomes right(left)
     PipeExpression(e) {
       return `${gen(e.right)}(${gen(e.left)})`
     },
 
-    // Matrix multiply: uses a runtime helper emitted at the top of output
     MatmulExpression(e) {
       return `__matmul(${gen(e.left)}, ${gen(e.right)})`
     },
 
-    // Slice by range emits .slice(from, to); slice by index emits [index]
     SliceExpression(e) {
       if (e.index?.kind === "RangeExpression") {
         return `${gen(e.target)}.slice(${gen(e.index.from)}, ${gen(e.index.to)})`
@@ -169,15 +171,12 @@ export default function generate(program) {
     },
 
     RangeExpression(e) {
-      // Ranges used standalone (for loops) are handled in ForRangeStatement.
-      // This covers range used as a slice index.
       return `${gen(e.from)}, ${gen(e.to)}`
     },
 
     FunctionCall(c) {
       const args = c.arguments.map(gen).join(", ")
       const call = `${gen(c.callee)}(${args})`
-      // Void calls are statements; non-void are expressions
       if (c.type?.kind === "Void") {
         output.push(`${call};`)
         return
@@ -205,5 +204,48 @@ export default function generate(program) {
 }`)
 
   gen(program)
-  return output.join("\n")
+  return { js: output.join("\n"), plotExprs }
+}
+
+export default function generate(program) {
+  return runGeneration(program).js
+}
+
+export function generateHtml(program) {
+  const { js, plotExprs } = runGeneration(program)
+
+  const canvases = plotExprs
+    .map((_, i) => `<canvas id="chart${i}" style="max-height:400px;margin-bottom:2rem"></canvas>`)
+    .join("\n")
+
+  const chartScripts = plotExprs.map((expr, i) => `
+  (function() {
+    const _data = ${expr};
+    const ctx = document.getElementById('chart${i}').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: _data.map((_, i) => i),
+        datasets: [{ label: 'Series ${i + 1}', data: _data, borderWidth: 2, fill: false }]
+      },
+      options: { responsive: true }
+    });
+  })();`).join("\n")
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Salamis Output</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }</style>
+</head>
+<body>
+${canvases}
+<script>
+${js}
+${chartScripts}
+</script>
+</body>
+</html>`
 }

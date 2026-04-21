@@ -63,6 +63,12 @@ describe("The compiler", () => {
     const js = compile("let d: Normal<Float, Float> = Normal(0.0, 1.0)\nlet x = sample(d)\n", "js")
     assert(js.includes("__sample"))
   })
+  it("generates html when given the html option", () => {
+    const html = compile("let v: Vec<Float> = [1.0, 2.0]\nplot(v)\n", "html")
+    assert(html.includes("<!DOCTYPE html>"))
+    assert(html.includes("chart.js"))
+    assert(html.includes("<canvas"))
+  })
   it("throws on syntax errors", () => {
     assert.throws(() => compile("let x 1\n", "js"), /Line/)
   })

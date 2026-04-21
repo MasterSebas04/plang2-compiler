@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Salamis Output</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }</style>
+</head>
+<body>
+<canvas id="chart0" style="max-height:400px;margin-bottom:2rem"></canvas>
+<script>
+function __len(v) { return v.length }
+function __sum(v) { return v.reduce((a, b) => a + b, 0) }
+function __mean(v) { return __sum(v) / v.length }
+function __max(v) { return Math.max(...v) }
+function __min(v) { return Math.min(...v) }
+function __Normal(mu, sigma) { return { kind: "Normal", mu, sigma } }
+function __Bernoulli(p) { return { kind: "Bernoulli", p } }
+function __Poisson(lambda) { return { kind: "Poisson", lambda } }
+function __Uniform(a, b) { return { kind: "Uniform", a, b } }
+function __sample(d) {
+  if (d.kind === "Normal") {
+    const u1 = Math.random(), u2 = Math.random()
+    return d.mu + d.sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
+  }
+  if (d.kind === "Bernoulli") return Math.random() < d.p ? 1.0 : 0.0
+  if (d.kind === "Poisson") {
+    const L = Math.exp(-d.lambda)
+    let k = 0, p = 1.0
+    do { k++; p *= Math.random() } while (p > L)
+    return k - 1
+  }
+  if (d.kind === "Uniform") return d.a + Math.random() * (d.b - d.a)
+  throw new Error("Unknown distribution: " + d.kind)
+}
+function __matmul(A, B) {
+  const rows = A.length, cols = B[0].length, inner = B.length;
+  return Array.from({length: rows}, (_, r) =>
+    Array.from({length: cols}, (_, c) =>
+      Array.from({length: inner}, (_, k) => A[r][k] * B[k][c])
+        .reduce((s, v) => s + v, 0)));
+}
+let data_1 = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+let avg_2 = __mean(data_1);
+let lo_3 = __min(data_1);
+let hi_4 = __max(data_1);
+let total_5 = __sum(data_1);
+let n_6 = __len(data_1);
+console.log(avg_2);
+console.log(lo_3);
+console.log(hi_4);
+console.log(total_5);
+console.log(n_6);
+let normal_7 = __Normal(0.0, 1.0);
+let bernoulli_8 = __Bernoulli(0.5);
+let poisson_9 = __Poisson(3.0);
+let uniform_10 = __Uniform(0.0, 10.0);
+let s1_11 = __sample(normal_7);
+let s2_12 = __sample(bernoulli_8);
+let s3_13 = __sample(poisson_9);
+let s4_14 = __sample(uniform_10);
+console.log(s1_11);
+console.log(s2_12);
+console.log(s3_13);
+console.log(s4_14);
+
+  (function() {
+    const _data = data_1;
+    const ctx = document.getElementById('chart0').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: _data.map((_, i) => i),
+        datasets: [{ label: 'Series 1', data: _data, borderWidth: 2, fill: false }]
+      },
+      options: { responsive: true }
+    });
+  })();
+</script>
+</body>
+</html>
