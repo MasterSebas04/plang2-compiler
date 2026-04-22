@@ -27,17 +27,18 @@ describe("The compiler", () => {
     const js = compile("let x = 1\n", "js")
     assert(js.includes("let x_") && js.includes("= 1"))
   })
-  it("correctly compiles arithmetic", () => {
+  it("correctly compiles arithmetic (constant-folded)", () => {
     const js = compile("let x = 1 + 2\n", "js")
-    assert(js.includes("(1 + 2)"))
+    assert(js.includes("= 3"))
   })
   it("correctly compiles a function declaration", () => {
     const js = compile("fn double(x: Int) ~> Int {\nreturn x\n}\n", "js")
     assert(js.includes("function double_"))
   })
   it("correctly compiles a for-condition loop", () => {
-    const js = compile("for false {\n}\n", "js")
-    assert(js.includes("while (false)"))
+    // Use a variable condition so the optimizer can't fold it away
+    const js = compile("let done = false\nfor done {\n}\n", "js")
+    assert(js.includes("while (done_"))
   })
   it("correctly compiles a for range loop", () => {
     const js = compile("for i in (0..10) {\n}\n", "js")

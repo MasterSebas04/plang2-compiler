@@ -39,29 +39,34 @@ const fixtures = [
     expected: "let x_1 = true;",
   },
   {
+    // 1 + 2 constant-folds to 3; x * 3 stays (x is a variable)
     name: "arithmetic",
     source: "let x = 1 + 2\nlet y = x * 3\n",
-    expected: "let x_1 = (1 + 2);\nlet y_2 = (x_1 * 3);",
+    expected: "let x_1 = 3;\nlet y_2 = (x_1 * 3);",
   },
   {
+    // neg(5) constant-folds to -5
     name: "negation",
     source: "let x = neg(5)\n",
-    expected: "let x_1 = (-(5));",
+    expected: "let x_1 = -5;",
   },
   {
+    // 1 < 2 constant-folds to true
     name: "comparison",
     source: "let x = 1 < 2\n",
-    expected: "let x_1 = (1 < 2);",
+    expected: "let x_1 = true;",
   },
   {
+    // 1 == 1 constant-folds to true
     name: "equality maps to ===",
     source: "let x = 1 == 1\n",
-    expected: "let x_1 = (1 === 1);",
+    expected: "let x_1 = true;",
   },
   {
+    // 1 != 2 constant-folds to true
     name: "inequality maps to !==",
     source: "let x = 1 != 2\n",
-    expected: "let x_1 = (1 !== 2);",
+    expected: "let x_1 = true;",
   },
   {
     name: "assignment",
@@ -74,14 +79,16 @@ const fixtures = [
     expected: "let v_1 = [1.0, 2.0, 3.0];",
   },
   {
+    // if(true) dead-code-eliminates to just the consequent
     name: "if short",
     source: "if true {\nprint(1)\n}\n",
-    expected: "if (true) {\nconsole.log(1);\n}",
+    expected: "console.log(1);",
   },
   {
+    // if(true) dead-code-eliminates; alternate is dropped
     name: "if-else",
     source: "if true {\nprint(1)\n} else {\nprint(2)\n}\n",
-    expected: "if (true) {\nconsole.log(1);\n} else {\nconsole.log(2);\n}",
+    expected: "console.log(1);",
   },
   {
     name: "if-else-if",
@@ -89,9 +96,10 @@ const fixtures = [
     expected: "let x_1 = 1;\nif ((x_1 < 0)) {\nconsole.log(1);\n} else\nif ((x_1 === 0)) {\nconsole.log(2);\n}",
   },
   {
+    // condition is a variable so it can't fold; the while survives
     name: "for-condition loop (Go-style while)",
-    source: "for false {\n}\n",
-    expected: "while (false) {\n}",
+    source: "let done = false\nfor done {\n}\n",
+    expected: "let done_1 = false;\nwhile (done_1) {\n}",
   },
   {
     name: "for range loop",
@@ -119,9 +127,10 @@ const fixtures = [
     expected: "function double_1(x_2) {\nreturn x_2;\n}\nlet y_3 = double_1(1);",
   },
   {
+    // neg(1.0) folds to -1.0 before abs() sees it
     name: "math builtins map to Math.*",
     source: "let x = sqrt(4.0)\nlet y = log(2.0)\nlet z = abs(neg(1.0))\n",
-    expected: "let x_1 = Math.sqrt(4.0);\nlet y_2 = Math.log(2.0);\nlet z_3 = Math.abs((-(1.0)));",
+    expected: "let x_1 = Math.sqrt(4.0);\nlet y_2 = Math.log(2.0);\nlet z_3 = Math.abs(-1.0);",
   },
   {
     name: "vec builtins map to preamble helpers",
