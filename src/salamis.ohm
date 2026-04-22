@@ -29,7 +29,7 @@ Salamis {
 
     ForStmt    = for id in "(" Range ")" Block             --range
                 | for id in "(" Exp ")" Block              --collection    // range as called by a fucntion
-                | while Exp Block                   --while
+                | for Exp Block                            --while
 
     Range      = Exp ".." Exp
 
@@ -103,11 +103,10 @@ Salamis {
     true = "true" ~alnum
     false = "false" ~alnum
     neg = "neg" ~alnum
-    while = "while" ~alnum
     print = "print" ~alnum
     plot  = "plot" ~alnum
 
-    keyword = let | fn | if | else | for | in | return | slice | true | false | neg | while | print | plot
+    keyword = let | fn | if | else | for | in | return | slice | true | false | neg | print | plot
 
 
     id          = ~keyword (letter | greekLetter) (alnum | "_")*

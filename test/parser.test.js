@@ -25,8 +25,8 @@ const syntaxChecks = [
   ["if x == 1 {\nlet y = 2\n}\n", "if with comparison condition"],
 
   // Loops
-  ["while x {\n}\n", "while statement"],
-  ["while x < 10 {\n}\n", "while with comparison"],
+  ["for x {\n}\n", "for-condition (Go-style while) statement"],
+  ["for x < 10 {\n}\n", "for-condition with comparison"],
   ["for i in (0..10) {\n}\n", "for range loop"],
   ["for x in (data) {\n}\n", "for collection loop"],
 
@@ -73,7 +73,6 @@ const syntaxErrors = [
   ["let = 1\n", "missing variable name in let"],
   ["let 1 = 2\n", "invalid variable name"],
   ["let if = 1\n", "'if' is not a variable name"],
-  ["let while = 1\n", "'while' is not a variable name"],
   ["let for = 1\n", "'for' is not a variable name"],
   ["let true = 1\n", "'true' is not a variable name"],
   ["let false = 1\n", "'false' is not a variable name"],
@@ -97,7 +96,6 @@ const syntaxErrors = [
 
   // Keywords used as identifiers
   ["ifx {\n}\n", "'if' should be separated from identifier"],
-  ["whilex {\n}\n", "'while' should be separated from identifier"],
   ["fnx(a: Int) {\n}\n", "'fn' should be separated from identifier"],
 ]
 

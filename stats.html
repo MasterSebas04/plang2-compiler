@@ -8,6 +8,7 @@
 </head>
 <body>
 <canvas id="chart0" style="max-height:400px;margin-bottom:2rem"></canvas>
+<canvas id="chart1" style="max-height:400px;margin-bottom:2rem"></canvas>
 <script>
 function __len(v) { return v.length }
 function __sum(v) { return v.reduce((a, b) => a + b, 0) }
@@ -41,28 +42,29 @@ function __matmul(A, B) {
         .reduce((s, v) => s + v, 0)));
 }
 let data_1 = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
-let avg_2 = __mean(data_1);
-let lo_3 = __min(data_1);
-let hi_4 = __max(data_1);
-let total_5 = __sum(data_1);
-let n_6 = __len(data_1);
-console.log(avg_2);
-console.log(lo_3);
-console.log(hi_4);
-console.log(total_5);
-console.log(n_6);
-let normal_7 = __Normal(0.0, 1.0);
-let bernoulli_8 = __Bernoulli(0.5);
-let poisson_9 = __Poisson(3.0);
-let uniform_10 = __Uniform(0.0, 10.0);
-let s1_11 = __sample(normal_7);
-let s2_12 = __sample(bernoulli_8);
-let s3_13 = __sample(poisson_9);
-let s4_14 = __sample(uniform_10);
-console.log(s1_11);
-console.log(s2_12);
-console.log(s3_13);
-console.log(s4_14);
+let data2_2 = [1.2, 3.4, 6.7, 4.2, 5.0, 6.0, 6.5, 8.4];
+let avg_3 = __mean(data_1);
+let lo_4 = __min(data_1);
+let hi_5 = __max(data_1);
+let total_6 = __sum(data_1);
+let n_7 = __len(data_1);
+console.log(avg_3);
+console.log(lo_4);
+console.log(hi_5);
+console.log(total_6);
+console.log(n_7);
+let normal_8 = __Normal(0.0, 1.0);
+let bernoulli_9 = __Bernoulli(0.5);
+let poisson_10 = __Poisson(3.0);
+let uniform_11 = __Uniform(0.0, 10.0);
+let s1_12 = __sample(normal_8);
+let s2_13 = __sample(bernoulli_9);
+let s3_14 = __sample(poisson_10);
+let s4_15 = __sample(uniform_11);
+console.log(s1_12);
+console.log(s2_13);
+console.log(s3_14);
+console.log(s4_15);
 
   (function() {
     const _data = data_1;
@@ -72,6 +74,19 @@ console.log(s4_14);
       data: {
         labels: _data.map((_, i) => i),
         datasets: [{ label: 'Series 1', data: _data, borderWidth: 2, fill: false }]
+      },
+      options: { responsive: true }
+    });
+  })();
+
+  (function() {
+    const _data = data2_2;
+    const ctx = document.getElementById('chart1').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: _data.map((_, i) => i),
+        datasets: [{ label: 'Series 2', data: _data, borderWidth: 2, fill: false }]
       },
       options: { responsive: true }
     });

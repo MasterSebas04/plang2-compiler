@@ -89,8 +89,8 @@ const fixtures = [
     expected: "let x_1 = 1;\nif ((x_1 < 0)) {\nconsole.log(1);\n} else\nif ((x_1 === 0)) {\nconsole.log(2);\n}",
   },
   {
-    name: "while loop",
-    source: "while false {\n}\n",
+    name: "for-condition loop (Go-style while)",
+    source: "for false {\n}\n",
     expected: "while (false) {\n}",
   },
   {

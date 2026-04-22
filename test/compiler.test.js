@@ -35,8 +35,8 @@ describe("The compiler", () => {
     const js = compile("fn double(x: Int) ~> Int {\nreturn x\n}\n", "js")
     assert(js.includes("function double_"))
   })
-  it("correctly compiles a while loop", () => {
-    const js = compile("while false {\n}\n", "js")
+  it("correctly compiles a for-condition loop", () => {
+    const js = compile("for false {\n}\n", "js")
     assert(js.includes("while (false)"))
   })
   it("correctly compiles a for range loop", () => {

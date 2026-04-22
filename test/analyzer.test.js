@@ -45,8 +45,8 @@ const semanticChecks = [
   ["if short with bool literal", "if true {\n}\n"],
   ["if-else with bool literal", "if true {\nlet x = 1\n} else {\nlet y = 2\n}\n"],
   ["if with comparison condition", "let x = 1\nif x < 2 {\nx = 2\n}\n"],
-  ["while loop with bool literal", "while false {\n}\n"],
-  ["while with comparison condition", "let x = 1\nwhile x < 10 {\nx = 2\n}\n"],
+  ["for-condition loop with bool literal", "for false {\n}\n"],
+  ["for-condition with comparison condition", "let x = 1\nfor x < 10 {\nx = 2\n}\n"],
   ["for range loop", "for i in (0..10) {\n}\n"],
   ["for range uses loop var as Int", "for i in (0..5) {\nlet x = i + 1\n}\n"],
   ["for collection loop", "let v: Vec<Int> = [1, 2, 3]\nfor x in (v) {\nlet y = x + 1\n}\n"],
@@ -67,7 +67,7 @@ const semanticChecks = [
 
   // Multiple statements
   ["multiple declarations", "let x = 1\nlet y = 2\n"],
-  ["variable used in while body", "let x = 1\nwhile false {\nx = 2\n}\n"],
+  ["variable used in for-condition body", "let x = 1\nfor false {\nx = 2\n}\n"],
   ["variable used in if body", "let x = 1\nif true {\nx = 2\n}\n"],
   ["chained comparisons", "let x = 3\nlet y = 5\nlet z = x < y\n"],
 
@@ -78,7 +78,7 @@ const semanticErrors = [
   ["use of undeclared variable", "let x = y\n", /Undefined variable/],
   ["assign to undeclared variable", "x = 1\n", /Undefined variable/],
   ["redeclaration of variable", "let x = 1\nlet x = 2\n", /Variable already declared/],
-  ["redeclaration in while body", "let x = 1\nwhile true {\nlet x = 2\n}\n", /Variable already declared/],
+  ["redeclaration in for-condition body", "let x = 1\nfor true {\nlet x = 2\n}\n", /Variable already declared/],
   ["redeclaration in if body", "let x = 1\nif true {\nlet x = 2\n}\n", /Variable already declared/],
   ["undeclared variable in expression", "let x = y + 1\n", /Undefined variable/],
   ["undeclared variable in comparison", "let x = y < 1\n", /Undefined variable/],
@@ -92,8 +92,8 @@ const semanticErrors = [
   // Non-bool conditions
   ["Int literal as if condition", "if 1 {\n}\n", /Expected Bool/],
   ["Int variable as if condition", "let x = 1\nif x {\n}\n", /Expected Bool/],
-  ["Int literal as while condition", "while 1 {\n}\n", /Expected Bool/],
-  ["Int variable as while condition", "let x = 1\nwhile x {\n}\n", /Expected Bool/],
+  ["Int literal as for-condition", "for 1 {\n}\n", /Expected Bool/],
+  ["Int variable as for-condition", "let x = 1\nfor x {\n}\n", /Expected Bool/],
 
   // Non-numeric arithmetic
   ["Bool in addition left", "let x = true + 1\n", /Expected Int or Float/],

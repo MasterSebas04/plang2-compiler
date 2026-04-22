@@ -1,4 +1,6 @@
 let data: Vec<Float> = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]
+let data2: Vec<Float> = [1.2, 3.4, 6.7, 4.2, 5.0, 6.0, 6.5, 8.4]
+
 
 let avg = mean(data)
 let lo = min(data)
@@ -28,3 +30,4 @@ print(s3)
 print(s4)
 
 plot(data)
+plot(data2)

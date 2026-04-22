@@ -228,7 +228,7 @@ export default function analyze(match) {
       return core.forCollectionStmt(loopVar, iter, body)
     },
 
-    ForStmt_while(_while, test, block) {
+    ForStmt_while(_for, test, block) {
       const t = test.analyze()
       validateBool(t.type ?? t, test.source)
       const body = block.analyze()
