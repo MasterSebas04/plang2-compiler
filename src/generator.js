@@ -22,6 +22,8 @@ const jsBuiltins = new Map([
   ["Poisson",  "__Poisson"],
   ["Uniform",  "__Uniform"],
   ["sample",   "__sample"],
+  ["readCsv",  "__readCsv"],
+  ["col",      "__col"],
 ])
 
 const builtinPreamble = `\
@@ -48,7 +50,17 @@ function __sample(d) {
   }
   if (d.kind === "Uniform") return d.a + Math.random() * (d.b - d.a)
   throw new Error("Unknown distribution: " + d.kind)
-}`
+}
+// CSV helpers — __readCsv returns a 2D array (Matrix<Float>).
+// __readFileSync is injected as an ES module import when CSV is used.
+// If the first row's first cell isn't a number it's treated as a header and skipped.
+function __readCsv(path) {
+  const lines = __readFileSync(path, "utf-8").trim().split(/\\r?\\n/)
+  const hasHeader = isNaN(parseFloat(lines[0].split(",")[0]))
+  return (hasHeader ? lines.slice(1) : lines)
+    .map(row => row.split(",").map(s => parseFloat(s.trim())))
+}
+function __col(m, n) { return m.map(row => row[n]) }`
 
 // Single generation pass — returns { js, plotExprs }
 function runGeneration(program) {
@@ -221,7 +233,13 @@ function runGeneration(program) {
 }`)
 
   gen(program)
-  return { js: output.join("\n"), plotExprs }
+  const body = output.join("\n")
+  // Prepend the Node.js fs import only when readCsv is actually used.
+  // The import must be at the top of the file; browsers never see it because
+  // generateHtml strips it before embedding the script.
+  const needsFs = body.includes("__readCsv")
+  const header  = needsFs ? `import { readFileSync as __readFileSync } from 'node:fs'\n` : ""
+  return { js: header + body, plotExprs }
 }
 
 export default function generate(program) {
@@ -229,7 +247,10 @@ export default function generate(program) {
 }
 
 export function generateHtml(program) {
-  const { js, plotExprs } = runGeneration(program)
+  let { js, plotExprs } = runGeneration(program)
+  // Strip the Node.js fs import — the browser can't use it, and CSV calls
+  // will be replaced with inline literals by the CLI before the HTML is written.
+  js = js.replace(/^import[^\n]+from ['"]node:fs['"]\n/m, "")
 
   const canvases = plotExprs
     .map((_, i) => `<canvas id="chart${i}" style="max-height:400px;margin-bottom:2rem"></canvas>`)

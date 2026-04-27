@@ -112,8 +112,9 @@ export const FLOAT = { kind: "Float" }
 export const BOOL  = { kind: "Bool" }
 export const STR   = { kind: "Str" }
 export const VOID  = { kind: "Void" }
-export const VEC_FLOAT = { kind: "Vec", inner: FLOAT }
-export const VEC_INT   = { kind: "Vec", inner: INT }
+export const VEC_FLOAT    = { kind: "Vec", inner: FLOAT }
+export const VEC_INT      = { kind: "Vec", inner: INT }
+export const MATRIX_FLOAT = { kind: "Matrix", inner: FLOAT }
 
 // Distribution type descriptors
 export function distType(name, params) { return { kind: "Dist", name, params } }
@@ -143,6 +144,9 @@ export const builtins = new Map([
   ["mean",     functionObject("mean",     [param("v", VEC_FLOAT)], FLOAT)],
   ["max",      functionObject("max",      [param("v", VEC_FLOAT)], FLOAT)],
   ["min",      functionObject("min",      [param("v", VEC_FLOAT)], FLOAT)],
+  // CSV
+  ["readCsv", functionObject("readCsv", [param("path", STR)],              MATRIX_FLOAT)],
+  ["col",     functionObject("col",     [param("m", MATRIX_FLOAT), param("n", INT)], VEC_FLOAT)],
   // Distribution constructors
   ["Normal",    functionObject("Normal",    [param("mu", FLOAT), param("sigma", FLOAT)], DIST_NORMAL)],
   ["Bernoulli", functionObject("Bernoulli", [param("p", FLOAT)],                         DIST_BERNOULLI)],

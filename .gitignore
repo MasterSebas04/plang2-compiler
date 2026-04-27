@@ -147,3 +147,4 @@ vite.config.ts.timestamp-*
 *.js
 !src/**/*.js
 !test/**/*.js
+examples/*.html
