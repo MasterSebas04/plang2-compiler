@@ -80,6 +80,26 @@ function validateMatrix(t, at) {
   validate(t.kind === "Matrix", `Expected Matrix type, got ${typeString(t)}`, at)
 }
 
+// Determine the result type for arithmetic on numeric or Vec operands.
+// Supports: scalar op scalar, Vec op Vec (element-wise), Vec op scalar (broadcast),
+// and scalar op Vec (broadcast). Errors on any other combination.
+function inferArithmeticType(lType, rType, op, at) {
+  if (isNumeric(lType) && isNumeric(rType)) {
+    validateType(rType, lType, at)
+    return lType
+  }
+  if (lType.kind === "Vec" && rType.kind === "Vec") {
+    validate(typesEqual(lType, rType),
+      `Vec type mismatch for ${op}: ${typeString(lType)} vs ${typeString(rType)}`, at)
+    return lType
+  }
+  // Vec<T> op T  →  Vec<T>
+  if (lType.kind === "Vec" && typesEqual(rType, lType.inner)) return lType
+  // T op Vec<T>  →  Vec<T>
+  if (rType.kind === "Vec" && typesEqual(lType, rType.inner)) return rType
+  error(`Cannot apply ${op} to ${typeString(lType)} and ${typeString(rType)}`, at)
+}
+
 function validateVecOrMatrix(t, at) {
   validate(
     t.kind === "Vec" || t.kind === "Matrix",
@@ -270,37 +290,29 @@ export default function analyze(match) {
     Exp2_add(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const lType = l.type ?? l
-      validateNumeric(lType, left.source)
-      validateType(r.type ?? r, lType, right.source)
-      return core.binaryExp(l, "+", r, lType)
+      const type = inferArithmeticType(l.type ?? l, r.type ?? r, "+", left.source)
+      return core.binaryExp(l, "+", r, type)
     },
 
     Exp2_sub(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const lType = l.type ?? l
-      validateNumeric(lType, left.source)
-      validateType(r.type ?? r, lType, right.source)
-      return core.binaryExp(l, "-", r, lType)
+      const type = inferArithmeticType(l.type ?? l, r.type ?? r, "-", left.source)
+      return core.binaryExp(l, "-", r, type)
     },
 
     Exp3_mul(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const lType = l.type ?? l
-      validateNumeric(lType, left.source)
-      validateType(r.type ?? r, lType, right.source)
-      return core.binaryExp(l, "*", r, lType)
+      const type = inferArithmeticType(l.type ?? l, r.type ?? r, "*", left.source)
+      return core.binaryExp(l, "*", r, type)
     },
 
     Exp3_div(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const lType = l.type ?? l
-      validateNumeric(lType, left.source)
-      validateType(r.type ?? r, lType, right.source)
-      return core.binaryExp(l, "/", r, lType)
+      const type = inferArithmeticType(l.type ?? l, r.type ?? r, "/", left.source)
+      return core.binaryExp(l, "/", r, type)
     },
 
     Exp4_matmul(left, _op, right) {
@@ -315,7 +327,11 @@ export default function analyze(match) {
     Exp5_negate(_neg, _open, exp, _close) {
       const x = exp.analyze()
       const t = x.type ?? x
-      validateNumeric(t, exp.source)
+      validate(
+        isNumeric(t) || t.kind === "Vec",
+        `neg expects a numeric or Vec, got ${typeString(t)}`,
+        exp.source
+      )
       return core.unaryExp("neg", x, t)
     },
 

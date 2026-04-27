@@ -1,7 +1,7 @@
 let data: Vec<Float> = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]
 let data2: Vec<Float> = [1.2, 3.4, 6.7, 4.2, 5.0, 6.0, 6.5, 8.4]
 
-
+-- Basic descriptive statistics
 let avg = mean(data)
 let lo = min(data)
 let hi = max(data)
@@ -14,6 +14,31 @@ print(hi)
 print(total)
 print(n)
 
+-- Variance and standard deviation using element-wise ops
+-- diffs = each value minus the mean  (Vec - scalar broadcast)
+-- sq    = squared differences        (Vec * Vec element-wise)
+let diffs = data - avg
+let sq = diffs * diffs
+let variance = mean(sq)
+let stddev = sqrt(variance)
+
+print(variance)
+print(stddev)
+
+-- Min-max normalization: rescale data to [0, 1]
+-- normalized = (data - min) / (max - min)
+let range = hi - lo
+let normalized = (data - lo) / range
+
+print(normalized)
+
+-- Z-score normalization: center at 0, scale by stddev
+-- zscore = (data - mean) / stddev
+let zscores = diffs / stddev
+
+print(zscores)
+
+-- Distribution sampling
 let normal: Normal<Float, Float> = Normal(0.0, 1.0)
 let bernoulli: Bernoulli<Float> = Bernoulli(0.5)
 let poisson: Poisson<Float> = Poisson(3.0)
@@ -29,5 +54,7 @@ print(s2)
 print(s3)
 print(s4)
 
+-- Visualize raw data, normalized, and z-scores
 plot(data)
-plot(data2)
+plot(normalized)
+plot(zscores)

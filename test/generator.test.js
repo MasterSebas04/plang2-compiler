@@ -148,6 +148,26 @@ const fixtures = [
     expected: "let d_1 = __Normal(0.0, 1.0);\nlet x_2 = __sample(d_1);",
   },
   {
+    name: "Vec + Vec element-wise",
+    source: "let v: Vec<Float> = [1.0, 2.0]\nlet w: Vec<Float> = [3.0, 4.0]\nlet r = v + w\n",
+    expected: "let v_1 = [1.0, 2.0];\nlet w_2 = [3.0, 4.0];\nlet r_3 = v_1.map((__v, __i) => __v + w_2[__i]);",
+  },
+  {
+    name: "Vec * scalar broadcast",
+    source: "let v: Vec<Float> = [1.0, 2.0]\nlet r = v * 2.0\n",
+    expected: "let v_1 = [1.0, 2.0];\nlet r_2 = v_1.map(__v => __v * 2.0);",
+  },
+  {
+    name: "scalar * Vec broadcast",
+    source: "let v: Vec<Float> = [1.0, 2.0]\nlet r = 2.0 * v\n",
+    expected: "let v_1 = [1.0, 2.0];\nlet r_2 = v_1.map(__v => 2.0 * __v);",
+  },
+  {
+    name: "neg on Vec",
+    source: "let v: Vec<Float> = [1.0, 2.0]\nlet r = neg(v)\n",
+    expected: "let v_1 = [1.0, 2.0];\nlet r_2 = v_1.map(__v => -__v);",
+  },
+  {
     name: "plot statement emits nothing in js mode",
     source: "let v: Vec<Float> = [1.0, 2.0, 3.0]\nplot(v)\n",
     expected: "let v_1 = [1.0, 2.0, 3.0];",

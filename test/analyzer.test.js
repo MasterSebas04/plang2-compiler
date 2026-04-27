@@ -65,6 +65,18 @@ const semanticChecks = [
   // Pipe
   ["pipe into single-param function", "fn double(x: Int) ~> Int {\nreturn x\n}\nlet y = 1 |> double\n"],
 
+  // Element-wise Vec operations
+  ["Vec + Vec", "let v: Vec<Float> = [1.0, 2.0]\nlet w: Vec<Float> = [3.0, 4.0]\nlet r = v + w\n"],
+  ["Vec - Vec", "let v: Vec<Float> = [1.0, 2.0]\nlet w: Vec<Float> = [3.0, 4.0]\nlet r = v - w\n"],
+  ["Vec * Vec", "let v: Vec<Float> = [1.0, 2.0]\nlet w: Vec<Float> = [3.0, 4.0]\nlet r = v * w\n"],
+  ["Vec / Vec", "let v: Vec<Float> = [1.0, 2.0]\nlet w: Vec<Float> = [3.0, 4.0]\nlet r = v / w\n"],
+  ["Vec + Float broadcast", "let v: Vec<Float> = [1.0, 2.0]\nlet r = v + 1.0\n"],
+  ["Vec - Float broadcast", "let v: Vec<Float> = [1.0, 2.0]\nlet r = v - 0.5\n"],
+  ["Vec * Float broadcast", "let v: Vec<Float> = [1.0, 2.0]\nlet r = v * 2.0\n"],
+  ["Vec / Float broadcast", "let v: Vec<Float> = [1.0, 2.0]\nlet r = v / 2.0\n"],
+  ["Float * Vec broadcast", "let v: Vec<Float> = [1.0, 2.0]\nlet r = 2.0 * v\n"],
+  ["neg on Vec", "let v: Vec<Float> = [1.0, 2.0]\nlet r = neg(v)\n"],
+
   // Multiple statements
   ["multiple declarations", "let x = 1\nlet y = 2\n"],
   ["variable used in for-condition body", "let x = 1\nfor false {\nx = 2\n}\n"],
@@ -95,13 +107,18 @@ const semanticErrors = [
   ["Int literal as for-condition", "for 1 {\n}\n", /Expected Bool/],
   ["Int variable as for-condition", "let x = 1\nfor x {\n}\n", /Expected Bool/],
 
+  // Vec type mismatches
+  ["Vec<Float> + Vec<Int> rejected", "let v: Vec<Float> = [1.0]\nlet w: Vec<Int> = [1]\nlet r = v + w\n", /Vec type mismatch/],
+  ["Vec<Float> + Int rejected (inner type mismatch)", "let v: Vec<Float> = [1.0]\nlet r = v + 1\n", /Cannot apply/],
+  ["Bool + Vec rejected", "let v: Vec<Float> = [1.0]\nlet r = true + v\n", /Cannot apply/],
+
   // Non-numeric arithmetic
-  ["Bool in addition left", "let x = true + 1\n", /Expected Int or Float/],
-  ["Bool in addition right", "let x = 1 + true\n", /Type mismatch/],
-  ["Bool in multiplication", "let x = true * 2\n", /Expected Int or Float/],
-  ["Bool in subtraction", "let x = true - 1\n", /Expected Int or Float/],
-  ["Bool in division", "let x = true / 1\n", /Expected Int or Float/],
-  ["Bool in negation", "let x = neg(true)\n", /Expected Int or Float/],
+  ["Bool in addition left", "let x = true + 1\n", /Cannot apply/],
+  ["Bool in addition right", "let x = 1 + true\n", /Cannot apply/],
+  ["Bool in multiplication", "let x = true * 2\n", /Cannot apply/],
+  ["Bool in subtraction", "let x = true - 1\n", /Cannot apply/],
+  ["Bool in division", "let x = true / 1\n", /Cannot apply/],
+  ["Bool in negation", "let x = neg(true)\n", /neg expects/],
   ["Bool in comparison", "let x = true < 1\n", /Expected Int or Float/],
 
   // Mixed types in arithmetic

@@ -147,11 +147,28 @@ function runGeneration(program) {
     },
 
     BinaryExpression(e) {
+      const l = gen(e.left)
+      const r = gen(e.right)
       const op = { "==": "===", "!=": "!==" }[e.operator] ?? e.operator
-      return `(${gen(e.left)} ${op} ${gen(e.right)})`
+
+      // Element-wise Vec operations — use __v/__i as lambda params to avoid
+      // shadowing any user variable that happens to be named the same.
+      if (e.type?.kind === "Vec") {
+        const lIsVec = (e.left.type ?? e.left)?.kind === "Vec"
+        const rIsVec = (e.right.type ?? e.right)?.kind === "Vec"
+        if (lIsVec && rIsVec) return `${l}.map((__v, __i) => __v ${op} ${r}[__i])`
+        if (lIsVec)           return `${l}.map(__v => __v ${op} ${r})`
+        /* scalar op Vec */   return `${r}.map(__v => ${l} ${op} __v)`
+      }
+
+      return `(${l} ${op} ${r})`
     },
 
     UnaryExpression(e) {
+      // Element-wise negation for Vec types
+      if ((e.argument.type ?? e.argument)?.kind === "Vec") {
+        return `${gen(e.argument)}.map(__v => -__v)`
+      }
       return `(-(${gen(e.argument)}))`
     },
 

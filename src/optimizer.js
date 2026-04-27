@@ -66,6 +66,7 @@ function isInt(n)     { return n.kind === "IntLiteral" }
 function isFloat(n)   { return n.kind === "FloatLiteral" }
 function isNumLit(n)  { return isInt(n) || isFloat(n) }
 function isBoolLit(n) { return n.kind === "BoolLiteral" }
+function isVec(n)     { return (n.type ?? n)?.kind === "Vec" }
 
 // Build a numeric literal with the same Int/Float kind as `like`
 function numLit(value, like) {
@@ -198,15 +199,18 @@ const optimizers = {
     }
 
     if (e.operator === "-") {
-      if (isNumLit(r) && r.value === 0) return l        // x - 0 → x
-      if (sameVar(l, r))                return zeroOf(l.type)  // x - x → 0
+      if (isNumLit(r) && r.value === 0) return l  // x - 0 → x
+      // x - x → 0 only for scalars: for Vecs we'd need a zero-vector of unknown
+      // length, which can't be expressed as a single literal at compile time.
+      if (sameVar(l, r) && !isVec(l)) return zeroOf(l.type)
     }
 
     if (e.operator === "*") {
       if (isNumLit(r) && r.value === 1) return l  // x * 1 → x
       if (isNumLit(l) && l.value === 1) return r  // 1 * x → x
-      if (isNumLit(r) && r.value === 0) return numLit(0, r)  // x * 0 → 0
-      if (isNumLit(l) && l.value === 0) return numLit(0, l)  // 0 * x → 0
+      // x * 0 → 0 only for scalars: a Vec * 0 would need a zero-vector literal.
+      if (isNumLit(r) && r.value === 0 && !isVec(l)) return numLit(0, r)
+      if (isNumLit(l) && l.value === 0 && !isVec(r)) return numLit(0, l)
     }
 
     if (e.operator === "/") {

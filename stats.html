@@ -9,6 +9,7 @@
 <body>
 <canvas id="chart0" style="max-height:400px;margin-bottom:2rem"></canvas>
 <canvas id="chart1" style="max-height:400px;margin-bottom:2rem"></canvas>
+<canvas id="chart2" style="max-height:400px;margin-bottom:2rem"></canvas>
 <script>
 function __len(v) { return v.length }
 function __sum(v) { return v.reduce((a, b) => a + b, 0) }
@@ -53,18 +54,29 @@ console.log(lo_4);
 console.log(hi_5);
 console.log(total_6);
 console.log(n_7);
-let normal_8 = __Normal(0.0, 1.0);
-let bernoulli_9 = __Bernoulli(0.5);
-let poisson_10 = __Poisson(3.0);
-let uniform_11 = __Uniform(0.0, 10.0);
-let s1_12 = __sample(normal_8);
-let s2_13 = __sample(bernoulli_9);
-let s3_14 = __sample(poisson_10);
-let s4_15 = __sample(uniform_11);
-console.log(s1_12);
-console.log(s2_13);
-console.log(s3_14);
-console.log(s4_15);
+let diffs_8 = data_1.map(__v => __v - avg_3);
+let sq_9 = diffs_8.map((__v, __i) => __v * diffs_8[__i]);
+let variance_10 = __mean(sq_9);
+let stddev_11 = Math.sqrt(variance_10);
+console.log(variance_10);
+console.log(stddev_11);
+let range_12 = (hi_5 - lo_4);
+let normalized_13 = data_1.map(__v => __v - lo_4).map(__v => __v / range_12);
+console.log(normalized_13);
+let zscores_14 = diffs_8.map(__v => __v / stddev_11);
+console.log(zscores_14);
+let normal_15 = __Normal(0.0, 1.0);
+let bernoulli_16 = __Bernoulli(0.5);
+let poisson_17 = __Poisson(3.0);
+let uniform_18 = __Uniform(0.0, 10.0);
+let s1_19 = __sample(normal_15);
+let s2_20 = __sample(bernoulli_16);
+let s3_21 = __sample(poisson_17);
+let s4_22 = __sample(uniform_18);
+console.log(s1_19);
+console.log(s2_20);
+console.log(s3_21);
+console.log(s4_22);
 
   (function() {
     const _data = data_1;
@@ -80,13 +92,26 @@ console.log(s4_15);
   })();
 
   (function() {
-    const _data = data2_2;
+    const _data = normalized_13;
     const ctx = document.getElementById('chart1').getContext('2d');
     new Chart(ctx, {
       type: 'line',
       data: {
         labels: _data.map((_, i) => i),
         datasets: [{ label: 'Series 2', data: _data, borderWidth: 2, fill: false }]
+      },
+      options: { responsive: true }
+    });
+  })();
+
+  (function() {
+    const _data = zscores_14;
+    const ctx = document.getElementById('chart2').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: _data.map((_, i) => i),
+        datasets: [{ label: 'Series 3', data: _data, borderWidth: 2, fill: false }]
       },
       options: { responsive: true }
     });
