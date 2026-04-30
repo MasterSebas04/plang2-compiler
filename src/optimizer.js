@@ -106,7 +106,15 @@ const optimizers = {
   },
 
   PlotStatement(s) {
-    return core.plotStmt(optimize(s.exp))
+    return core.plotStmt(s.exps.map(optimize))
+  },
+
+  HistogramStatement(s) {
+    return core.histogramStmt(optimize(s.exp))
+  },
+
+  SimulateExpression(e) {
+    return core.simulateExpr(optimize(e.count), optimize(e.body), e.type)
   },
 
   ReturnStatement(s) {

@@ -29,6 +29,8 @@ print("=== Volume Statistics ===")
 print("Mean volume: " + format(avg_vol, 0))
 print("Std dev:     " + format(stddev_vol, 0))
 
-plot(prices)
-plot(norm_prices)
+-- Prices and normalized prices together on one chart for comparison
+plot(prices, norm_prices)
+
+-- Z-scored volumes separately (different scale)
 plot(z_volumes)

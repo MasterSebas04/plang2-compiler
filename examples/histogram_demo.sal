@@ -1,0 +1,13 @@
+-- Show histogram vs line plot on the same data
+let prices = [142.5, 145.0, 141.2, 148.7, 150.3, 149.1, 153.4, 151.8, 155.2, 157.6]
+
+print("=== Price Distribution ===")
+print("Mean: " + format(mean(prices), 2))
+print("Min:  " + format(min(prices), 2))
+print("Max:  " + format(max(prices), 2))
+
+-- Line chart shows prices over time
+plot(prices)
+
+-- Histogram shows how prices are distributed across ranges
+histogram(prices)

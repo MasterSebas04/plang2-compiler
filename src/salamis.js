@@ -11,7 +11,7 @@ if (!source) {
 
 const sourceCode = readFileSync(source, "utf-8")
 const sourceDir  = dirname(resolve(source))
-const needsHtml  = /\bplot\s*\(/.test(sourceCode)
+const needsHtml  = /\b(plot|histogram)\s*\(/.test(sourceCode)
 const stem       = basename(source, extname(source))
 
 // Always compile original source to JS and run it for terminal output.

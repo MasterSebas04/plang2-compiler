@@ -102,8 +102,16 @@ export function printStmt(exp) {
   return { kind: "PrintStatement", exp }
 }
 
-export function plotStmt(exp) {
-  return { kind: "PlotStatement", exp }
+export function plotStmt(exps) {
+  return { kind: "PlotStatement", exps }
+}
+
+export function histogramStmt(exp) {
+  return { kind: "HistogramStatement", exp }
+}
+
+export function simulateExpr(count, body, type) {
+  return { kind: "SimulateExpression", count, body, type }
 }
 
 // Type descriptors exported for use in builtins and tests

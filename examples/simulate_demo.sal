@@ -1,0 +1,24 @@
+-- Monte Carlo simulation of a Normal distribution
+let results = simulate(2000) {
+  sample(Normal(0.0, 1.0))
+}
+
+print("=== Normal(0, 1) — 2000 samples ===")
+print("Mean:    " + format(mean(results), 4))
+print("Std dev: " + format(sqrt(mean((results - mean(results)) * (results - mean(results)))), 4))
+print("Min:     " + format(min(results), 4))
+print("Max:     " + format(max(results), 4))
+
+histogram(results)
+
+-- Compare with Uniform
+let uniform = simulate(2000) {
+  sample(Uniform(0.0, 1.0))
+}
+
+print("=== Uniform(0, 1) — 2000 samples ===")
+print("Mean: " + format(mean(uniform), 4))
+print("Min:  " + format(min(uniform), 4))
+print("Max:  " + format(max(uniform), 4))
+
+histogram(uniform)

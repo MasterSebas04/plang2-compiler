@@ -9,10 +9,12 @@ Salamis {
               | ReturnStmt
               | PrintStmt
               | PlotStmt
+              | HistogramStmt
               | newline
 
-    PrintStmt = print "(" Exp ")" newline
-    PlotStmt  = plot "(" Exp ")" newline
+    PrintStmt     = print "(" Exp ")" newline
+    PlotStmt      = plot "(" NonemptyListOf<Exp, ","> ")" newline
+    HistogramStmt = histogram "(" Exp ")" newline
 
     ReturnStmt = return Exp newline
 
@@ -79,7 +81,8 @@ Salamis {
             | true                           // true
             | false                          // false
             | stringlit                      // "hello"
-            | "[" ListOf<Exp, ","> "]"  --vec  // [1.0, 2.0, 3.0]
+            | "[" ListOf<Exp, ","> "]"  --vec      // [1.0, 2.0, 3.0]
+            | simulate "(" Exp ")" "{" newline Exp newline "}"  --simulate
             | id "(" Args ")"   --call       // mean(data), Normal(μ, σ)
             | id                --id         // x, μ, myVar
             | "(" Exp ")"       --parens     // (x + y)
@@ -103,10 +106,12 @@ Salamis {
     true = "true" ~alnum
     false = "false" ~alnum
     neg = "neg" ~alnum
-    print = "print" ~alnum
-    plot  = "plot" ~alnum
+    print     = "print" ~alnum
+    plot      = "plot" ~alnum
+    histogram = "histogram" ~alnum
+    simulate  = "simulate" ~alnum
 
-    keyword = let | fn | if | else | for | in | return | slice | true | false | neg | print | plot
+    keyword = let | fn | if | else | for | in | return | slice | true | false | neg | print | plot | histogram | simulate
 
 
     id          = ~keyword (letter | greekLetter) (alnum | "_")*

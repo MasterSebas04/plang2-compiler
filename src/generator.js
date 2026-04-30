@@ -66,10 +66,11 @@ function __col(m, n) { return m.map(row => row[n]) }
 function __str(x) { return String(x) }
 function __format(x, n) { return x.toFixed(n) }`
 
-// Single generation pass — returns { js, plotExprs }
+// Single generation pass — returns { js, plotItems }
+// plotItems is an array of { expr, type } where type is "line" or "histogram"
 function runGeneration(program) {
   const output = []
-  const plotExprs = []
+  const plotItems = []
 
   const targetName = (mapping => {
     return entity => {
@@ -100,7 +101,11 @@ function runGeneration(program) {
     },
 
     PlotStatement(s) {
-      plotExprs.push(gen(s.exp))
+      plotItems.push({ exprs: s.exps.map(gen), type: "line" })
+    },
+
+    HistogramStatement(s) {
+      plotItems.push({ exprs: [gen(s.exp)], type: "histogram" })
     },
 
     ReturnStatement(s) {
@@ -217,6 +222,10 @@ function runGeneration(program) {
       return call
     },
 
+    SimulateExpression(e) {
+      return `Array.from({length: ${gen(e.count)}}, () => ${gen(e.body)})`
+    },
+
     VecLiteral(e) {
       return `[${e.elements.map(gen).join(", ")}]`
     },
@@ -243,7 +252,7 @@ function runGeneration(program) {
   // generateHtml strips it before embedding the script.
   const needsFs = body.includes("__readCsv")
   const header  = needsFs ? `import { readFileSync as __readFileSync } from 'node:fs'\n` : ""
-  return { js: header + body, plotExprs }
+  return { js: header + body, plotItems }
 }
 
 export default function generate(program) {
@@ -251,28 +260,83 @@ export default function generate(program) {
 }
 
 export function generateHtml(program) {
-  let { js, plotExprs } = runGeneration(program)
+  let { js, plotItems } = runGeneration(program)
   // Strip the Node.js fs import — the browser can't use it, and CSV calls
   // will be replaced with inline literals by the CLI before the HTML is written.
   js = js.replace(/^import[^\n]+from ['"]node:fs['"]\n/m, "")
 
-  const canvases = plotExprs
+  // Color palette — cycles across all datasets across all charts
+  const palette = [
+    ["54, 162, 235"],
+    ["255, 99, 132"],
+    ["75, 192, 192"],
+    ["255, 159, 64"],
+    ["153, 102, 255"],
+    ["255, 205, 86"],
+    ["201, 203, 207"],
+  ]
+  let colorIdx = 0
+  const nextColor = () => palette[colorIdx++ % palette.length][0]
+
+  const canvases = plotItems
     .map((_, i) => `<canvas id="chart${i}" style="max-height:400px;margin-bottom:2rem"></canvas>`)
     .join("\n")
 
-  const chartScripts = plotExprs.map((expr, i) => `
+  const chartScripts = plotItems.map(({ exprs, type }, i) => {
+    if (type === "histogram") {
+      const color = nextColor()
+      return `
   (function() {
-    const _data = ${expr};
+    const _data = ${exprs[0]};
+    const _n = _data.length;
+    const _bins = Math.ceil(Math.log2(_n) + 1);
+    const _lo = Math.min(..._data), _hi = Math.max(..._data);
+    const _width = (_hi - _lo) / _bins || 1;
+    const _counts = Array(_bins).fill(0);
+    _data.forEach(v => {
+      const b = Math.min(Math.floor((v - _lo) / _width), _bins - 1);
+      _counts[b]++;
+    });
+    const _labels = Array.from({length: _bins}, (_, b) =>
+      (_lo + b * _width).toFixed(2) + "–" + (_lo + (b + 1) * _width).toFixed(2));
+    const ctx = document.getElementById('chart${i}').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: _labels,
+        datasets: [{ label: 'Frequency', data: _counts, borderWidth: 1,
+          backgroundColor: 'rgba(${color}, 0.7)', borderColor: 'rgb(${color})' }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  })();`
+    }
+    const datasets = exprs.map((expr, j) => {
+      const color = nextColor()
+      return `{
+        label: 'Series ${j + 1}',
+        data: (function(){ return ${expr}; })(),
+        borderColor: 'rgb(${color})',
+        backgroundColor: 'rgba(${color}, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.1
+      }`
+    }).join(",\n        ")
+    return `
+  (function() {
+    const _first = (function(){ return ${exprs[0]}; })();
     const ctx = document.getElementById('chart${i}').getContext('2d');
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: _data.map((_, i) => i),
-        datasets: [{ label: 'Series ${i + 1}', data: _data, borderWidth: 2, fill: false }]
+        labels: _first.map((_, i) => i),
+        datasets: [${datasets}]
       },
       options: { responsive: true }
     });
-  })();`).join("\n")
+  })();`
+  }).join("\n")
 
   return `<!DOCTYPE html>
 <html lang="en">

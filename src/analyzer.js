@@ -180,15 +180,21 @@ export default function analyze(match) {
       return core.printStmt(exp.analyze())
     },
 
-    PlotStmt(_plot, _open, exp, _close, _newline) {
+    PlotStmt(_plot, _open, exps, _close, _newline) {
+      const vals = exps.asIteration().children.map(e => {
+        const val = e.analyze()
+        const t = val.type ?? val
+        validate(t.kind === "Vec", `plot expects a Vec, got ${typeString(t)}`, e.source)
+        return val
+      })
+      return core.plotStmt(vals)
+    },
+
+    HistogramStmt(_histogram, _open, exp, _close, _newline) {
       const val = exp.analyze()
       const t = val.type ?? val
-      validate(
-        t.kind === "Vec",
-        `plot expects a Vec, got ${typeString(t)}`,
-        exp.source
-      )
-      return core.plotStmt(val)
+      validate(t.kind === "Vec", `histogram expects a Vec, got ${typeString(t)}`, exp.source)
+      return core.histogramStmt(val)
     },
 
     ReturnStmt(_return, exp, _newline) {
@@ -361,6 +367,19 @@ export default function analyze(match) {
         validateType(items[i].type ?? items[i], elemType, _open.source)
       }
       return core.vecLiteral(items, vecType(elemType))
+    },
+
+    Primary_simulate(_simulate, _open, count, _close, _lbrace, _nl1, body, _nl2, _rbrace) {
+      const n = count.analyze()
+      validateType(n.type ?? n, INT, count.source)
+      const b = body.analyze()
+      const bType = b.type ?? b
+      validate(
+        isNumeric(bType),
+        `simulate body must return a numeric value, got ${typeString(bType)}`,
+        body.source
+      )
+      return core.simulateExpr(n, b, core.VEC_FLOAT)
     },
 
     Primary_call(id, _open, args, _close) {
