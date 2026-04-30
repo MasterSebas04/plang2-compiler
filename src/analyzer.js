@@ -84,6 +84,7 @@ function validateMatrix(t, at) {
 // Supports: scalar op scalar, Vec op Vec (element-wise), Vec op scalar (broadcast),
 // and scalar op Vec (broadcast). Errors on any other combination.
 function inferArithmeticType(lType, rType, op, at) {
+  if (op === "+" && lType.kind === "Str" && rType.kind === "Str") return STR
   if (isNumeric(lType) && isNumeric(rType)) {
     validateType(rType, lType, at)
     return lType
@@ -363,6 +364,26 @@ export default function analyze(match) {
     },
 
     Primary_call(id, _open, args, _close) {
+      // str(x) — converts any numeric or Bool value to Str
+      if (id.sourceString === "str") {
+        const argValues = args.asIteration().children.map(a => a.analyze())
+        validate(argValues.length === 1, `str expects 1 argument`, id.source)
+        const t = argValues[0].type ?? argValues[0]
+        validate(
+          isNumeric(t) || t.kind === "Bool",
+          `str expects a numeric or Bool value, got ${typeString(t)}`,
+          id.source
+        )
+        return core.functionCall({ kind: "FunctionObject", name: "str" }, argValues, STR)
+      }
+      // format(x, n) — formats a Float to n decimal places, returns Str
+      if (id.sourceString === "format") {
+        const argValues = args.asIteration().children.map(a => a.analyze())
+        validate(argValues.length === 2, `format expects 2 arguments`, id.source)
+        validateType(argValues[0].type ?? argValues[0], FLOAT, id.source)
+        validateType(argValues[1].type ?? argValues[1], INT, id.source)
+        return core.functionCall({ kind: "FunctionObject", name: "format" }, argValues, STR)
+      }
       // sample(d) is a special form — accepts any distribution type, returns Float
       if (id.sourceString === "sample") {
         const argValues = args.asIteration().children.map(a => a.analyze())

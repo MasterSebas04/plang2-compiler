@@ -9,12 +9,10 @@ let avg_price = mean(prices)
 let lo_price = min(prices)
 let hi_price = max(prices)
 
-print(avg_price)
-print(lo_price)
-print(hi_price)
-
--- Day-over-day price changes (element-wise subtraction of shifted slices)
-let n = len(prices)
+print("=== Price Statistics ===")
+print("Mean:  " + format(avg_price, 2))
+print("Min:   " + format(lo_price, 2))
+print("Max:   " + format(hi_price, 2))
 
 -- Normalize price to [0, 1] for comparison with volume
 let price_range = hi_price - lo_price
@@ -27,8 +25,9 @@ let sq_vol = diffs_vol * diffs_vol
 let stddev_vol = sqrt(mean(sq_vol))
 let z_volumes = diffs_vol / stddev_vol
 
-print(norm_prices)
-print(z_volumes)
+print("=== Volume Statistics ===")
+print("Mean volume: " + format(avg_vol, 0))
+print("Std dev:     " + format(stddev_vol, 0))
 
 plot(prices)
 plot(norm_prices)

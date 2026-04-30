@@ -24,6 +24,8 @@ const jsBuiltins = new Map([
   ["sample",   "__sample"],
   ["readCsv",  "__readCsv"],
   ["col",      "__col"],
+  ["str",      "__str"],
+  ["format",   "__format"],
 ])
 
 const builtinPreamble = `\
@@ -60,7 +62,9 @@ function __readCsv(path) {
   return (hasHeader ? lines.slice(1) : lines)
     .map(row => row.split(",").map(s => parseFloat(s.trim())))
 }
-function __col(m, n) { return m.map(row => row[n]) }`
+function __col(m, n) { return m.map(row => row[n]) }
+function __str(x) { return String(x) }
+function __format(x, n) { return x.toFixed(n) }`
 
 // Single generation pass — returns { js, plotExprs }
 function runGeneration(program) {

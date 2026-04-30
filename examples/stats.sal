@@ -8,51 +8,40 @@ let hi = max(data)
 let total = sum(data)
 let n = len(data)
 
-print(avg)
-print(lo)
-print(hi)
-print(total)
-print(n)
+print("=== Descriptive Statistics ===")
+print("Mean:  " + format(avg, 2))
+print("Min:   " + format(lo, 2))
+print("Max:   " + format(hi, 2))
+print("Sum:   " + format(total, 2))
+print("Count: " + str(n))
 
 -- Variance and standard deviation using element-wise ops
--- diffs = each value minus the mean  (Vec - scalar broadcast)
--- sq    = squared differences        (Vec * Vec element-wise)
 let diffs = data - avg
 let sq = diffs * diffs
 let variance = mean(sq)
 let stddev = sqrt(variance)
 
-print(variance)
-print(stddev)
+print("=== Spread ===")
+print("Variance: " + format(variance, 4))
+print("Std dev:  " + format(stddev, 4))
 
 -- Min-max normalization: rescale data to [0, 1]
--- normalized = (data - min) / (max - min)
 let range = hi - lo
 let normalized = (data - lo) / range
 
-print(normalized)
-
 -- Z-score normalization: center at 0, scale by stddev
--- zscore = (data - mean) / stddev
 let zscores = diffs / stddev
 
-print(zscores)
-
--- Distribution sampling
+print("=== Samples from Distributions ===")
 let normal: Normal<Float, Float> = Normal(0.0, 1.0)
 let bernoulli: Bernoulli<Float> = Bernoulli(0.5)
 let poisson: Poisson<Float> = Poisson(3.0)
 let uniform: Uniform<Float, Float> = Uniform(0.0, 10.0)
 
-let s1 = sample(normal)
-let s2 = sample(bernoulli)
-let s3 = sample(poisson)
-let s4 = sample(uniform)
-
-print(s1)
-print(s2)
-print(s3)
-print(s4)
+print("Normal(0,1):    " + format(sample(normal), 4))
+print("Bernoulli(0.5): " + str(sample(bernoulli)))
+print("Poisson(3):     " + str(sample(poisson)))
+print("Uniform(0,10):  " + format(sample(uniform), 4))
 
 -- Visualize raw data, normalized, and z-scores
 plot(data)
