@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css"
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salamis Programming Language</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#story">Story</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#checks">Static Checks</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href = "#developers">Developers</a></li>    
+            </ul>
+        </nav>
+    <section>
+        <p> Data. Simulation. Visualization</p>
+        <h2> A small programming language for statistical thinking.</h2>
+        <p>
+            Salamis is a statically typed language designed for working with 
+            numbers, vectors, distributions, simulations, csv data, and simple visualization.
+        </p>
+        <a href="https://github.com/laithtitouah/salamis">View GitHub Repo </a>
+    </section>    
+    </header>
+    <main>
+        <section id="story">
+            <h2>The Story</h2>
+            <p>
+                Salamis was created to make statistical and data-centered programming feel
+                lightweight, readable, and beginner friendly. Instead of writing long Javascript
+                programs just to sample from distributions, calculate averages, or graph data,
+                Salamis gives users a focused syntax for exploring numerical ideas quickly.
+            </p>
+            <p>
+                The language comines familiar programming tools,such as variables, functions,loops, conditionals, and static types with built-in support
+                for vectors,matrices, probability distributions, simulation, plotting, and histograms.
+            </p>
+        </section>
+        <section id="features">
+            <h2>Language Features</h2>
+            <ul>
+                <li>Static types: Int, Float, Bool, Str, Void, Vec, Matrix, and distributions </li>
+                <li>Variables, assignment, functions, parameters, and return values</li>
+                <li>If / else-if / else conditionals</li>
+                <li>Range loops, collection loops, and while-style loops</li>
+                <li>Vector literals and element-wise vector arithmetic</li>
+                <li>Matrix multiplication</li>
+                <li>Built-in statistical functions like mean, sum, min, and max</li>
+                <li>Probability distributions: Normal, Bernoulli, Poisson, and Uniform</li>
+                <li>Simulation expressions using repeated samplings</li>
+                <li>Plot and histogram generation through html output</li>
+                <li>CSV reading and column extraction</li>
+            </ul>
+        </section>
+        <section id="checks">
+            <h2>Static, Safety, and Security</h2>
+            <ul>
+                <li>Variables must be declared before use</li>
+                <li>Variables cannot be redeclared in the same scope</li>
+                <li>Assignments must match the declared variable type</li>
+                <li>Function calls must use the correct number of arguments</li>
+                <li>Return statements must appear inside functions</li>
+                <li>Return values must match the declared function return type</li>
+                <li>If and while conditions must be Bool</li>
+                <li>Arithmetic expressionss must use valid numeric or vector operands</li>
+                <li>Matrix multiplication requires matrix operands</li>
+                <li>Plot and histogram statements require vector output</li>
+                <li>sample(...) only accepts distribution values</li>
+                <li>simulate(...) requires an Int count and a numeric body expression</li>
+            </ul>
+        </section>
+        <section id="examples">
+            <h2>Example Programs</h2>
+            <article>
+                <h3>1. Function with static Types</h3>
+                <pre><code>let data: Vec&lt;Float&gt; = [10.0, 20.0, 30.0, 40.0]
+                    print(mean(data))
+                    print(sum(data))</code></pre>
+                    <button onclick="toggleOutput('output1')">Show Output</button>
+                    <div id="output1" class="output-box">
+                        <p>25.0</p>
+                        <p>100.0</p>
+                    </div>
+            </article>
+            <article>
+                <h3>2. Function with Static Types</h3>
+                <pre><code>fn square(x: Float) ~&gt; Float {
+                    return x * x 
+                }    
+                let result: Float = square(5.0)
+                print(result)</code></pre>
+            </article>
+            <article>
+                <h3>3. Simulation with a Normal distribution</h3>
+                <pre><code>
+                    led d: Normal&lt; Float, Float&gt; = Normal(0.0, 1.0)
+                    let samples: Vec&lt;Float&gt; = simulate(1000){
+                        sample(d)
+                    }
+                    histogram(samples)</code></pre>
+            </article>
+            <article>
+            <h3>4. Looping Over a Range</h3>
+            <pre><code>
+                let total: Int = 0
+                for i in (0..5) {
+                    total = total + i
+                }
+                print(total)
+            </code></pre>
+            </article>
+            <article>
+                <h3>5. Reading CSV Data and Plotting</h3>
+                <pre><code>
+                    let table: Matrix&lt;Float&gt; = readCsv("prices.csv")
+                    let prices: Vec&lt;Float&gt; = col(table, 1)
+                    plot(prices)
+                </code></pre>
+            </article>
+            <section id="developers">
+                <article>
+                <h2>Developers</h2>
+                <h3>
+                    Laith Titouah
+                </h3>
+                </article>
+                <article>
+                    <h2>Marcus Razo</h2>
+                </article>
+                <article>
+                    <h2>Sebastian Lange</h2>
+                </article>
+
+            </section>
+        </main>
+        <footer>
+            <p> Salamis Programming language • Built for CMSI language design. </p>
+        </footer>
+        <script src="script.js"></script>
+</body>
+</html>
