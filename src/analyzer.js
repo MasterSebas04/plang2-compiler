@@ -44,11 +44,6 @@ function typesEqual(a, b) {
   if (a.kind !== b.kind) return false
   if (a.kind === "Vec" || a.kind === "Matrix") return typesEqual(a.inner, b.inner)
   if (a.kind === "Dist") return a.name === b.name && a.params.every((p, i) => typesEqual(p, b.params[i]))
-  if (a.kind === "Fun") {
-    return typesEqual(a.returnType, b.returnType) &&
-      a.paramTypes.length === b.paramTypes.length &&
-      a.paramTypes.every((p, i) => typesEqual(p, b.paramTypes[i]))
-  }
   return true
 }
 
