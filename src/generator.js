@@ -1,4 +1,3 @@
-// Maps Salamis builtin names to their JS equivalents
 const jsBuiltins = new Map([
   ["sqrt",  "Math.sqrt"],
   ["log",   "Math.log"],
@@ -66,8 +65,6 @@ function __col(m, n) { return m.map(row => row[n]) }
 function __str(x) { return String(x) }
 function __format(x, n) { return x.toFixed(n) }`
 
-// Single generation pass — returns { js, plotItems }
-// plotItems is an array of { expr, type } where type is "line" or "histogram"
 function runGeneration(program) {
   const output = []
   const plotItems = []
@@ -172,8 +169,6 @@ function runGeneration(program) {
       const r = gen(e.right)
       const op = { "==": "===", "!=": "!==" }[e.operator] ?? e.operator
 
-      // Element-wise Vec operations — use __v/__i as lambda params to avoid
-      // shadowing any user variable that happens to be named the same.
       if (e.type?.kind === "Vec") {
         const lIsVec = (e.left.type ?? e.left)?.kind === "Vec"
         const rIsVec = (e.right.type ?? e.right)?.kind === "Vec"
@@ -186,7 +181,6 @@ function runGeneration(program) {
     },
 
     UnaryExpression(e) {
-      // Element-wise negation for Vec types
       if ((e.argument.type ?? e.argument)?.kind === "Vec") {
         return `${gen(e.argument)}.map(__v => -__v)`
       }
@@ -238,9 +232,6 @@ function runGeneration(program) {
 
   gen(program)
   const body = output.join("\n")
-  // Prepend the Node.js fs import only when readCsv is actually used.
-  // The import must be at the top of the file; browsers never see it because
-  // generateHtml strips it before embedding the script.
   const needsFs = body.includes("__readCsv")
   const header  = needsFs ? `import { readFileSync as __readFileSync } from 'node:fs'\n` : ""
   return { js: header + body, plotItems }
@@ -252,11 +243,8 @@ export default function generate(program) {
 
 export function generateHtml(program) {
   let { js, plotItems } = runGeneration(program)
-  // Strip the Node.js fs import — the browser can't use it, and CSV calls
-  // will be replaced with inline literals by the CLI before the HTML is written.
   js = js.replace(/^import[^\n]+from ['"]node:fs['"]\n/m, "")
 
-  // Color palette — cycles across all datasets across all charts
   const palette = [
     ["54, 162, 235"],
     ["255, 99, 132"],

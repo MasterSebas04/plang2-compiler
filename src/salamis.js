@@ -33,18 +33,12 @@ if (flag && flag !== "js") {
   process.exit(0)
 }
 
-// Always compile original source to JS and run it for terminal output.
-// The generated JS uses __readCsv with Node's fs module at runtime.
-// Write the JS next to the source file and run from there so relative
-// paths (like readCsv("prices.csv")) resolve against the source directory.
 const js = compile(sourceCode, "js")
 const jsFile = resolve(sourceDir, stem + ".js")
 writeFileSync(jsFile, js)
 execSync(`node "${jsFile}"`, { stdio: "inherit", cwd: sourceDir })
 
 if (needsHtml) {
-  // Generate HTML from original source, then post-process to inline CSV data
-  // so the HTML is self-contained and works in the browser without Node's fs.
   let html = compile(sourceCode, "html")
   html = inlineCsvInHtml(html, sourceDir)
   const htmlFile = resolve(sourceDir, stem + ".html")
@@ -56,8 +50,6 @@ if (needsHtml) {
   } catch { /* silently skip if browser open fails */ }
 }
 
-// Post-process the generated HTML/JS string to replace __readCsv("file.csv")
-// calls with inline 2D array literals so the HTML is fully self-contained.
 function inlineCsvInHtml(html, dir) {
   return html.replace(/__readCsv\("([^"]+)"\)/g, (_match, csvPath) => {
     const fullPath = resolve(dir, csvPath)

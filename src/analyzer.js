@@ -1,4 +1,3 @@
-// Makes AST made in parser and makes a real AST that goes to generator with correct format
 import * as core from "./core.js"
 
 class Context {
@@ -28,17 +27,15 @@ function validate(condition, message, at) {
   if (!condition) error(message, at)
 }
 
-// Type descriptors — plain objects compared by typesEqual()
-const INT = { kind: "Int" }
+const INT  = { kind: "Int" }
 const FLOAT = { kind: "Float" }
 const BOOL = { kind: "Bool" }
-const STR = { kind: "Str" }
+const STR  = { kind: "Str" }
 const VOID = { kind: "Void" }
 
-function vecType(inner) { return { kind: "Vec", inner } }
+function vecType(inner)    { return { kind: "Vec", inner } }
 function matrixType(inner) { return { kind: "Matrix", inner } }
 function distType(name, params) { return { kind: "Dist", name, params } }
-
 
 function typesEqual(a, b) {
   if (a.kind !== b.kind) return false
@@ -76,9 +73,10 @@ function validateMatrix(t, at) {
   validate(t.kind === "Matrix", `Expected Matrix type, got ${typeString(t)}`, at)
 }
 
-// Determine the result type for arithmetic on numeric or Vec operands.
-// Supports: scalar op scalar, Vec op Vec (element-wise), Vec op scalar (broadcast),
-// and scalar op Vec (broadcast). Errors on any other combination.
+function validateVecOrMatrix(t, at) {
+  validate(t.kind === "Vec" || t.kind === "Matrix", `Expected Vec or Matrix, got ${typeString(t)}`, at)
+}
+
 function inferArithmeticType(lType, rType, op, at) {
   if (op === "+" && lType.kind === "Str" && rType.kind === "Str") return STR
   if (isNumeric(lType) && isNumeric(rType)) {
@@ -90,19 +88,9 @@ function inferArithmeticType(lType, rType, op, at) {
       `Vec type mismatch for ${op}: ${typeString(lType)} vs ${typeString(rType)}`, at)
     return lType
   }
-  // Vec<T> op T  →  Vec<T>
   if (lType.kind === "Vec" && typesEqual(rType, lType.inner)) return lType
-  // T op Vec<T>  →  Vec<T>
   if (rType.kind === "Vec" && typesEqual(lType, rType.inner)) return rType
   error(`Cannot apply ${op} to ${typeString(lType)} and ${typeString(rType)}`, at)
-}
-
-function validateVecOrMatrix(t, at) {
-  validate(
-    t.kind === "Vec" || t.kind === "Matrix",
-    `Expected Vec or Matrix, got ${typeString(t)}`,
-    at
-  )
 }
 
 export default function analyze(match) {
@@ -266,8 +254,6 @@ export default function analyze(match) {
       return core.rangeExp(f, t)
     },
 
-    // --- Expressions ---
-
     Exp_pipe(left, _pipe, right) {
       const l = left.analyze()
       const r = right.analyze()
@@ -379,7 +365,6 @@ export default function analyze(match) {
     },
 
     Primary_call(id, _open, args, _close) {
-      // str(x) — converts any numeric or Bool value to Str
       if (id.sourceString === "str") {
         const argValues = args.asIteration().children.map(a => a.analyze())
         validate(argValues.length === 1, `str expects 1 argument`, id.source)
@@ -391,7 +376,6 @@ export default function analyze(match) {
         )
         return core.functionCall({ kind: "FunctionObject", name: "str" }, argValues, STR)
       }
-      // format(x, n) — formats a Float to n decimal places, returns Str
       if (id.sourceString === "format") {
         const argValues = args.asIteration().children.map(a => a.analyze())
         validate(argValues.length === 2, `format expects 2 arguments`, id.source)
@@ -399,7 +383,6 @@ export default function analyze(match) {
         validateType(argValues[1].type ?? argValues[1], INT, id.source)
         return core.functionCall({ kind: "FunctionObject", name: "format" }, argValues, STR)
       }
-      // sample(d) is a special form — accepts any distribution type, returns Float
       if (id.sourceString === "sample") {
         const argValues = args.asIteration().children.map(a => a.analyze())
         validate(argValues.length === 1, `sample expects 1 argument`, id.source)
@@ -432,8 +415,6 @@ export default function analyze(match) {
       return exp.analyze()
     },
 
-    // --- Types ---
-
     Type_int(_) { return INT },
     Type_float(_) { return FLOAT },
     Type_bool(_) { return BOOL },
@@ -445,8 +426,6 @@ export default function analyze(match) {
     Type_bernoulli(_name, _open, t, _close) { return distType("Bernoulli", [t.analyze()]) },
     Type_poisson(_name, _open, t, _close) { return distType("Poisson", [t.analyze()]) },
     Type_uniform(_name, _open, t1, _comma, t2, _close) { return distType("Uniform", [t1.analyze(), t2.analyze()]) },
-
-    // --- Literals ---
 
     floatnum(_int, _dot, _frac) {
       return core.floatLiteral(Number(this.sourceString))
@@ -460,7 +439,7 @@ export default function analyze(match) {
       return core.strLiteral(this.sourceString.slice(1, -1))
     },
 
-    true(_) { return core.boolLiteral(true) },
+    true(_)  { return core.boolLiteral(true) },
     false(_) { return core.boolLiteral(false) },
   }
 
