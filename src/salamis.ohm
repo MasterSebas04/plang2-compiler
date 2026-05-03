@@ -72,8 +72,8 @@ Salamis {
         | Exp5
 
     Exp5 = neg "(" Exp5 ")"                  --negate
-        | slice Primary "(" Range ")"        --slicerange
-        | slice Primary "(" Exp ")"          --sliceindex
+        | slice id "(" Range ")" ~"("         --sliceidrange
+        | slice id "(" Exp ")" ~"("          --sliceidindex
         | Primary
 
     Primary = floatnum                       // 3.14

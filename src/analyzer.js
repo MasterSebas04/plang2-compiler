@@ -1,3 +1,4 @@
+// Makes AST made in parser and makes a real AST that goes to generator with correct format
 import * as core from "./core.js"
 
 class Context {
@@ -43,11 +44,6 @@ function typesEqual(a, b) {
   if (a.kind !== b.kind) return false
   if (a.kind === "Vec" || a.kind === "Matrix") return typesEqual(a.inner, b.inner)
   if (a.kind === "Dist") return a.name === b.name && a.params.every((p, i) => typesEqual(p, b.params[i]))
-  if (a.kind === "Fun") {
-    return typesEqual(a.returnType, b.returnType) &&
-      a.paramTypes.length === b.paramTypes.length &&
-      a.paramTypes.every((p, i) => typesEqual(p, b.paramTypes[i]))
-  }
   return true
 }
 
@@ -342,16 +338,16 @@ export default function analyze(match) {
       return core.unaryExp("neg", x, t)
     },
 
-    Exp5_slicerange(_slice, target, _open, range, _close) {
-      const t = target.analyze()
+    Exp5_sliceidrange(_slice, target, _open, range, _close) {
+      const t = context.get(target.sourceString, target.source)
       const tType = t.type ?? t
       validateVecOrMatrix(tType, target.source)
       range.analyze()
       return core.sliceExp(t, range.analyze(), tType)
     },
 
-    Exp5_sliceindex(_slice, target, _open, index, _close) {
-      const t = target.analyze()
+    Exp5_sliceidindex(_slice, target, _open, index, _close) {
+      const t = context.get(target.sourceString, target.source)
       const tType = t.type ?? t
       validateVecOrMatrix(tType, target.source)
       const idx = index.analyze()

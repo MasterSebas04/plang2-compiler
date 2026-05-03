@@ -208,18 +208,9 @@ function runGeneration(program) {
       return `${gen(e.target)}[${gen(e.index)}]`
     },
 
-    RangeExpression(e) {
-      return `${gen(e.from)}, ${gen(e.to)}`
-    },
-
     FunctionCall(c) {
       const args = c.arguments.map(gen).join(", ")
-      const call = `${gen(c.callee)}(${args})`
-      if (c.type?.kind === "Void") {
-        output.push(`${call};`)
-        return
-      }
-      return call
+      return `${gen(c.callee)}(${args})`
     },
 
     SimulateExpression(e) {

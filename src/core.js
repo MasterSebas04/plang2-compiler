@@ -74,10 +74,6 @@ export function sliceExp(target, index, type) {
   return { kind: "SliceExpression", target, index, type }
 }
 
-export function distributionType(name, typeArgs) {
-  return { kind: "DistributionType", name, typeArgs }
-}
-
 export function vecLiteral(elements, type) {
   return { kind: "VecLiteral", elements, type }
 }

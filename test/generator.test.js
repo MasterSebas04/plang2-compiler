@@ -172,6 +172,21 @@ const fixtures = [
     source: "let v: Vec<Float> = [1.0, 2.0, 3.0]\nplot(v)\n",
     expected: "let v_1 = [1.0, 2.0, 3.0];",
   },
+  {
+    name: "neg on scalar variable",
+    source: "let x = 3.0\nlet y = neg(x)\n",
+    expected: "let x_1 = 3.0;\nlet y_2 = (-(x_1));",
+  },
+  {
+    name: "if-else with multiple statements in else branch",
+    source: "let done = false\nif done {\nprint(1)\n} else {\nprint(2)\nprint(3)\n}\n",
+    expected: "let done_1 = false;\nif (done_1) {\nconsole.log(1);\n} else {\nconsole.log(2);\nconsole.log(3);\n}",
+  },
+  {
+    name: "slice by range",
+    source: "let v: Vec<Float> = [1.0, 2.0, 3.0]\nlet x = slice v(0..2)\n",
+    expected: "let v_1 = [1.0, 2.0, 3.0];\nlet x_2 = v_1.slice(0, 2);",
+  },
 ]
 
 describe("The code generator", () => {
