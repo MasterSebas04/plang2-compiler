@@ -78,6 +78,10 @@ export function vecLiteral(elements, type) {
   return { kind: "VecLiteral", elements, type }
 }
 
+export function matrixLiteral(rows, type) {
+  return { kind: "MatrixLiteral", rows, type }
+}
+
 export function intLiteral(value) {
   return { kind: "IntLiteral", value, type: { kind: "Int" } }
 }

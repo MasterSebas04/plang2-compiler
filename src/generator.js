@@ -219,10 +219,22 @@ function runGeneration(program) {
     FloatLiteral(e) { return Number.isInteger(e.value) ? e.value.toFixed(1) : String(e.value) },
     BoolLiteral(e) { return String(e.value) },
     StrLiteral(e) { return JSON.stringify(e.value) },
+    MatrixLiteral(e) {
+      return `[${e.rows.map(row => `[${row.map(gen).join(", ")}]`).join(", ")}]`
+    },
   }
 
   output.push(builtinPreamble)
   output.push(`function __matmul(A, B) {
+  if (!Array.isArray(A[0])) {
+    if (A.length !== B.length) throw new Error(\`Dimension mismatch: Vec(\${A.length}) @ Matrix(\${B.length}x\${B[0].length})\`);
+    return B[0].map((_, c) => A.reduce((s, v, k) => s + v * B[k][c], 0));
+  }
+  if (!Array.isArray(B[0])) {
+    if (A[0].length !== B.length) throw new Error(\`Dimension mismatch: Matrix(\${A.length}x\${A[0].length}) @ Vec(\${B.length})\`);
+    return A.map(row => row.reduce((s, v, k) => s + v * B[k], 0));
+  }
+  if (A[0].length !== B.length) throw new Error(\`Matrix dimension mismatch: (\${A.length}x\${A[0].length}) @ (\${B.length}x\${B[0].length})\`);
   const rows = A.length, cols = B[0].length, inner = B.length;
   return Array.from({length: rows}, (_, r) =>
     Array.from({length: cols}, (_, c) =>

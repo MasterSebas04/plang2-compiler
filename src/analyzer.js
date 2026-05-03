@@ -307,10 +307,13 @@ export default function analyze(match) {
     Exp4_matmul(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      validateMatrix(l.type ?? l, left.source)
-      validateMatrix(r.type ?? r, right.source)
-      validateType(r.type ?? r, l.type ?? l, right.source)
-      return core.matmulExp(l, r, l.type ?? l)
+      const lType = l.type ?? l
+      const rType = r.type ?? r
+      if (lType.kind === "Vec" && rType.kind === "Matrix") return core.matmulExp(l, r, lType)
+      if (lType.kind === "Matrix" && rType.kind === "Vec") return core.matmulExp(l, r, rType)
+      validateMatrix(lType, left.source)
+      validateMatrix(rType, right.source)
+      return core.matmulExp(l, r, lType)
     },
 
     Exp5_negate(_neg, _open, exp, _close) {
@@ -338,7 +341,24 @@ export default function analyze(match) {
       validateVecOrMatrix(tType, target.source)
       const idx = index.analyze()
       validateType(idx.type ?? idx, INT, index.source)
-      return core.sliceExp(t, idx, tType.inner)
+      const resultType = tType.kind === "Matrix" ? vecType(tType.inner) : tType.inner
+      return core.sliceExp(t, idx, resultType)
+    },
+
+    Primary_matrix(_open, rows, _close) {
+      const rowArrays = rows.asIteration().children.map(r => r.analyze())
+      const rowLen = rowArrays[0].length
+      for (const row of rowArrays) {
+        validate(row.length === rowLen, `Matrix rows must all have the same length`, _open.source)
+        for (const el of row) {
+          validateType(el.type ?? el, FLOAT, _open.source)
+        }
+      }
+      return core.matrixLiteral(rowArrays, matrixType(FLOAT))
+    },
+
+    MatrixRow(_open, elements, _close) {
+      return elements.asIteration().children.map(e => e.analyze())
     },
 
     Primary_vec(_open, elements, _close) {

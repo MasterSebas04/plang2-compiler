@@ -81,12 +81,15 @@ Salamis {
             | true                           // true
             | false                          // false
             | stringlit                      // "hello"
+            | "[" NonemptyListOf<MatrixRow, ","> "]"  --matrix  // [[1.0, 2.0], [3.0, 4.0]]
             | "[" ListOf<Exp, ","> "]"  --vec      // [1.0, 2.0, 3.0]
             | simulate "(" Exp ")" "{" newline Exp newline "}"  --simulate
             | id "(" Args ")"   --call       // mean(data), Normal(μ, σ)
             | id                --id         // x, μ, myVar
             | "(" Exp ")"       --parens     // (x + y)
-    
+
+    MatrixRow = "[" NonemptyListOf<Exp, ","> "]"
+
     Args   = ListOf<Exp, ",">
     relop = "<=" | ">=" | "<" | ">" | "==" | "!="
     newline = "\n"+
