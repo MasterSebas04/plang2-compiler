@@ -214,12 +214,7 @@ function runGeneration(program) {
 
     FunctionCall(c) {
       const args = c.arguments.map(gen).join(", ")
-      const call = `${gen(c.callee)}(${args})`
-      if (c.type?.kind === "Void") {
-        output.push(`${call};`)
-        return
-      }
-      return call
+      return `${gen(c.callee)}(${args})`
     },
 
     SimulateExpression(e) {
