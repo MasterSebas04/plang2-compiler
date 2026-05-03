@@ -79,4 +79,24 @@ describe("The compiler", () => {
   it("throws on undefined variables", () => {
     assert.throws(() => compile("let x = y\n", "js"), /Undefined variable/)
   })
+  it("correctly compiles matrix multiplication", () => {
+    const js = compile("let a: Matrix<Float> = readCsv(\"a.csv\")\nlet b: Matrix<Float> = readCsv(\"b.csv\")\nlet c = a @ b\n", "js")
+    assert(js.includes("__matmul"))
+  })
+  it("correctly compiles slice by index", () => {
+    const js = compile("let v: Vec<Float> = [1.0, 2.0, 3.0]\nlet x = slice v(0)\n", "js")
+    assert(js.includes("[0]"))
+  })
+  it("correctly compiles histogram", () => {
+    const html = compile("let v: Vec<Float> = [1.0, 2.0, 3.0]\nhistogram(v)\n", "html")
+    assert(html.includes("<!DOCTYPE html>"))
+  })
+  it("correctly compiles simulate", () => {
+    const js = compile("let d: Normal<Float, Float> = Normal(0.0, 1.0)\nlet s = simulate(100) {\nsample(d)\n}\n", "js")
+    assert(js.includes("Array.from"))
+  })
+  it("correctly compiles distribution type annotation", () => {
+    const js = compile("let d: Bernoulli<Float> = Bernoulli(0.5)\n", "js")
+    assert(js.includes("__Bernoulli"))
+  })
 })

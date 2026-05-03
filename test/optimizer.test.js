@@ -86,6 +86,11 @@ describe("optimizer", () => {
     it("folds <= on equal values to true", () => {
       assert.deepEqual(init("let x = 3 <= 3\n"), core.boolLiteral(true))
     })
+
+    it("folds >= on equal values to true", () => {
+      assert.deepEqual(init("let x = 3 >= 3\n"), core.boolLiteral(true))
+    })
+
   })
 
   // -------------------------------------------------------------------------

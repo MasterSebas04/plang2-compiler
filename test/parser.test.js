@@ -46,8 +46,6 @@ const syntaxChecks = [
 
   // Slicing
   ["let x = slice data(0..1)\n", "slice variable by range"],
-  ["let x = slice mean(data)(0..3)\n", "slice function result by range"],
-  ["let x = slice mean(data)(0)\n", "slice function result by index"],
 
   // Function calls
   ["let x = mean(data)\n", "function call"],

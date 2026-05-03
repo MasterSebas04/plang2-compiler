@@ -83,6 +83,22 @@ const semanticChecks = [
   ["variable used in if body", "let x = 1\nif true {\nx = 2\n}\n"],
   ["chained comparisons", "let x = 3\nlet y = 5\nlet z = x < y\n"],
 
+  // String concatenation
+  ["Str + Str concatenation", 'let x = "hello" + " world"\n'],
+
+  // Scalar-Vec broadcasts
+  ["Float - Vec broadcast", "let v: Vec<Float> = [1.0, 2.0]\nlet r = 2.0 - v\n"],
+  ["Float / Vec broadcast", "let v: Vec<Float> = [1.0, 2.0]\nlet r = 2.0 / v\n"],
+
+  // Slice
+  ["slice variable by index", "let v: Vec<Float> = [1.0, 2.0, 3.0]\nlet x = slice v(0)\n"],
+  ["slice variable by range", "let v: Vec<Float> = [1.0, 2.0, 3.0]\nlet x = slice v(0..2)\n"],
+
+  // str and format builtins
+  ["str of Int", "let x = str(42)\n"],
+  ["str of Bool", "let x = str(true)\n"],
+  ["format of Float", 'let x = format(3.14, 2)\n'],
+
 ]
 
 const semanticErrors = [
@@ -136,6 +152,14 @@ const semanticErrors = [
   // Range
   ["Float in range start", "for i in (1.0..10) {\n}\n", /Type mismatch/],
   ["Float in range end", "for i in (0..10.0) {\n}\n", /Type mismatch/],
+
+  // plot/histogram/sample type errors
+  ["plot with non-Vec", "let x = 5\nplot(x)\n", /plot expects a Vec/],
+  ["histogram with non-Vec", "let x = 5\nhistogram(x)\n", /histogram expects a Vec/],
+  ["sample with non-distribution", "let x = 5.0\nlet y = sample(x)\n", /sample expects a distribution/],
+
+  // Empty vector literal
+  ["empty vector literal", "let v: Vec<Float> = []\n", /Empty vector/],
 ]
 
 describe("The analyzer", () => {

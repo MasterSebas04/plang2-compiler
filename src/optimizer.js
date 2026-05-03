@@ -191,11 +191,6 @@ const optimizers = {
       }
     }
 
-    // Bool == / != can also fold
-    if (isBoolLit(l) && isBoolLit(r)) {
-      if (e.operator === "==") return core.boolLiteral(l.value === r.value)
-      if (e.operator === "!=") return core.boolLiteral(l.value !== r.value)
-    }
 
     // --- Algebraic simplification ---
     // These identities hold regardless of whether the non-literal side has

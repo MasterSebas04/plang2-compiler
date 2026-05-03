@@ -3,6 +3,14 @@
   "version": "0.0.1",
   "description": "A compiler for SALAMIS, a programming language by Sammy, Laith, Marcus, and Sebastian",
   "main": "src/salamis.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MasterSebas04/salamis"
+  },
+  "homepage": "https://github.com/MasterSebas04/salamis#readme",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "test": "c8 node --test test/**/*.test.js"
   },
@@ -11,12 +19,7 @@
     "interpreter",
     "language"
   ],
-  "contributors": [
-    "Sammy",
-    "Laith",
-    "Marcus",
-    "Sebastian Lange"
-  ],
+  "author": "Sammy, Laith, Marcus, Sebastian Lange",
   "license": "MIT",
   "type": "module",
   "dependencies": {

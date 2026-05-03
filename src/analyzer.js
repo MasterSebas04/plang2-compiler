@@ -1,3 +1,4 @@
+// Makes AST made in parser and makes a real AST that goes to generator with correct format
 import * as core from "./core.js"
 
 class Context {
@@ -342,16 +343,16 @@ export default function analyze(match) {
       return core.unaryExp("neg", x, t)
     },
 
-    Exp5_slicerange(_slice, target, _open, range, _close) {
-      const t = target.analyze()
+    Exp5_sliceidrange(_slice, target, _open, range, _close) {
+      const t = context.get(target.sourceString, target.source)
       const tType = t.type ?? t
       validateVecOrMatrix(tType, target.source)
       range.analyze()
       return core.sliceExp(t, range.analyze(), tType)
     },
 
-    Exp5_sliceindex(_slice, target, _open, index, _close) {
-      const t = target.analyze()
+    Exp5_sliceidindex(_slice, target, _open, index, _close) {
+      const t = context.get(target.sourceString, target.source)
       const tType = t.type ?? t
       validateVecOrMatrix(tType, target.source)
       const idx = index.analyze()
