@@ -1,0 +1,36 @@
+let m = readCsv("prices.csv")
+
+-- Extract columns (header row is skipped automatically)
+let prices = col(m, 1)
+let volumes = col(m, 2)
+
+-- Descriptive stats on price
+let avg_price = mean(prices)
+let lo_price = min(prices)
+let hi_price = max(prices)
+
+print("=== Price Statistics ===")
+print("Mean:  " + format(avg_price, 2))
+print("Min:   " + format(lo_price, 2))
+print("Max:   " + format(hi_price, 2))
+
+-- Normalize price to [0, 1] for comparison with volume
+let price_range = hi_price - lo_price
+let norm_prices = (prices - lo_price) / price_range
+
+-- Z-score volumes to center and scale them
+let avg_vol = mean(volumes)
+let diffs_vol = volumes - avg_vol
+let sq_vol = diffs_vol * diffs_vol
+let stddev_vol = sqrt(mean(sq_vol))
+let z_volumes = diffs_vol / stddev_vol
+
+print("=== Volume Statistics ===")
+print("Mean volume: " + format(avg_vol, 0))
+print("Std dev:     " + format(stddev_vol, 0))
+
+-- Prices and normalized prices together on one chart for comparison
+plot(prices, norm_prices)
+
+-- Z-scored volumes separately (different scale)
+plot(z_volumes)

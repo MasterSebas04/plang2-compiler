@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles.css"
+    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salamis Programming Language</title>
@@ -78,7 +78,7 @@
         <section id="examples">
             <h2>Example Programs</h2>
             <article>
-                <h3>1. Function with static Types</h3>
+                <h3>1. Basic Statistics</h3>
                 <pre><code>let data: Vec&lt;Float&gt; = [10.0, 20.0, 30.0, 40.0]
                     print(mean(data))
                     print(sum(data))</code></pre>
@@ -95,33 +95,61 @@
                 }    
                 let result: Float = square(5.0)
                 print(result)</code></pre>
+                <button onclick="toggleOutput('output2')"> Show Output </button>
+                <div id="output2" class="output-box">
+                    <p>25.0</p>
+                </div>
             </article>
             <article>
-                <h3>3. Simulation with a Normal distribution</h3>
+                <h3>3. Monte Carlo Simulation</h3>
                 <pre><code>
-                    led d: Normal&lt; Float, Float&gt; = Normal(0.0, 1.0)
-                    let samples: Vec&lt;Float&gt; = simulate(1000){
-                        sample(d)
-                    }
-                    histogram(samples)</code></pre>
-            </article>
-            <article>
-            <h3>4. Looping Over a Range</h3>
-            <pre><code>
-                let total: Int = 0
-                for i in (0..5) {
-                    total = total + i
-                }
-                print(total)
-            </code></pre>
-            </article>
-            <article>
-                <h3>5. Reading CSV Data and Plotting</h3>
-                <pre><code>
-                    let table: Matrix&lt;Float&gt; = readCsv("prices.csv")
-                    let prices: Vec&lt;Float&gt; = col(table, 1)
-                    plot(prices)
+                    let results = simulate(2000) {
+                        sample(Normal(0.0,1.0))
+                    } 
+                print("=== Normal(0,1) - 2000 samples ===")
+                print("Mean: "+ format(mean(results), 4))
+                histogram(results)
                 </code></pre>
+                <button onclick="toggleOutput('output3')">Show Output</button>
+                <div id="output3" class = "output-box">
+                <iframe src="Examples/montecarlo.html" title="Monte Carlo Simulation Output"></iframe>
+                </div>
+            </article>
+            <article>
+            <h3>4. Descriptive Statistics and Normalization</h3>
+            <pre><code>
+                let data: Vec&lt;Float&gt; = [2.0, 4.0, 4.0, 4.0, 5.0, 7.0, 9.0]
+                let avg = mean(data)
+                let lo = min(data)
+                let hi = max(data)
+                let normalized = (data - lo) / (hi - lo)
+                plot(data)
+                plot(normalized) </code></pre>
+                <button onclick="toggleOutput('output4')">Show Output</button>
+
+                <div id="output4" class="output-box">
+                    <iframe src="Examples/stats.html" title="Descriptive Statiscs Output"></iframe>
+                    </div>
+            </article>
+            <article>
+                <h3>5. CSV Data Analysis </h3>
+                <pre><code>
+                    let m = readCsv("prices.csv")
+                    let prices = col(m,1)
+                    let volumes = col(m,2)
+
+                    let avg_price = mean(prices)
+                    let lo_price = min(prices)
+                    let hi_price = max(prices)
+
+                    let norm_prices = (prices - lo_price) /(hi_price - lo_price)
+                    plot(prices, norm_prices)
+                    plot(volumes)
+                </code></pre>
+                <button onclick="toggleOutput('output5')">Show Output</button>
+                <div id="output5" class="output-box">
+                    <iframe src="Examples/csv_analysis.html" title = "CSV Analysis Output"></iframe>
+                </div>
             </article>
             <section id="developers">
                 <article>

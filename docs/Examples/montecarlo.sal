@@ -1,0 +1,8 @@
+let results = simulate(2000) {
+  sample(Normal(0.0, 1.0))
+}
+
+print("=== Normal(0, 1) — 2000 samples ===")
+print("Mean: " + format(mean(results), 4))
+
+histogram(results)

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Salamis Output</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }</style>
+</head>
+<body>
+<canvas id="chart0" style="max-height:400px;margin-bottom:2rem"></canvas>
+<canvas id="chart1" style="max-height:400px;margin-bottom:2rem"></canvas>
+<script>
+function __len(v) { return v.length }
+function __sum(v) { return v.reduce((a, b) => a + b, 0) }
+function __mean(v) { return __sum(v) / v.length }
+function __max(v) { return Math.max(...v) }
+function __min(v) { return Math.min(...v) }
+function __Normal(mu, sigma) { return { kind: "Normal", mu, sigma } }
+function __Bernoulli(p) { return { kind: "Bernoulli", p } }
+function __Poisson(lambda) { return { kind: "Poisson", lambda } }
+function __Uniform(a, b) { return { kind: "Uniform", a, b } }
+function __sample(d) {
+  if (d.kind === "Normal") {
+    const u1 = Math.random(), u2 = Math.random()
+    return d.mu + d.sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
+  }
+  if (d.kind === "Bernoulli") return Math.random() < d.p ? 1.0 : 0.0
+  if (d.kind === "Poisson") {
+    const L = Math.exp(-d.lambda)
+    let k = 0, p = 1.0
+    do { k++; p *= Math.random() } while (p > L)
+    return k - 1
+  }
+  if (d.kind === "Uniform") return d.a + Math.random() * (d.b - d.a)
+  throw new Error("Unknown distribution: " + d.kind)
+}
+// CSV helpers — __readCsv returns a 2D array (Matrix<Float>).
+// __readFileSync is injected as an ES module import when CSV is used.
+// If the first row's first cell isn't a number it's treated as a header and skipped.
+function __readCsv(path) {
+  const lines = __readFileSync(path, "utf-8").trim().split(/\r?\n/)
+  const hasHeader = isNaN(parseFloat(lines[0].split(",")[0]))
+  return (hasHeader ? lines.slice(1) : lines)
+    .map(row => row.split(",").map(s => parseFloat(s.trim())))
+}
+function __col(m, n) { return m.map(row => row[n]) }
+function __str(x) { return String(x) }
+function __format(x, n) { return x.toFixed(n) }
+function __matmul(A, B) {
+  const rows = A.length, cols = B[0].length, inner = B.length;
+  return Array.from({length: rows}, (_, r) =>
+    Array.from({length: cols}, (_, c) =>
+      Array.from({length: inner}, (_, k) => A[r][k] * B[k][c])
+        .reduce((s, v) => s + v, 0)));
+}
+let m_1 = [[2024, 142.5, 3200000], [2024, 145, 2900000], [2024, 141.2, 3500000], [2024, 148.7, 4100000], [2024, 150.3, 3800000], [2024, 149.1, 2700000], [2024, 153.4, 4500000], [2024, 151.8, 3300000], [2024, 155.2, 5100000], [2024, 157.6, 4800000]];
+let prices_2 = __col(m_1, 1);
+let volumes_3 = __col(m_1, 2);
+let avg_price_4 = __mean(prices_2);
+let lo_price_5 = __min(prices_2);
+let hi_price_6 = __max(prices_2);
+console.log("=== Price Statistics ===");
+console.log(("Mean:  " + __format(avg_price_4, 2)));
+console.log(("Min:   " + __format(lo_price_5, 2)));
+console.log(("Max:   " + __format(hi_price_6, 2)));
+let price_range_7 = (hi_price_6 - lo_price_5);
+let norm_prices_8 = prices_2.map(__v => __v - lo_price_5).map(__v => __v / price_range_7);
+let avg_vol_9 = __mean(volumes_3);
+let diffs_vol_10 = volumes_3.map(__v => __v - avg_vol_9);
+let sq_vol_11 = diffs_vol_10.map((__v, __i) => __v * diffs_vol_10[__i]);
+let stddev_vol_12 = Math.sqrt(__mean(sq_vol_11));
+let z_volumes_13 = diffs_vol_10.map(__v => __v / stddev_vol_12);
+console.log("=== Volume Statistics ===");
+console.log(("Mean volume: " + __format(avg_vol_9, 0)));
+console.log(("Std dev:     " + __format(stddev_vol_12, 0)));
+
+  (function() {
+    const _first = (function(){ return prices_2; })();
+    const ctx = document.getElementById('chart0').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: _first.map((_, i) => i),
+        datasets: [{
+        label: 'Series 1',
+        data: (function(){ return prices_2; })(),
+        borderColor: 'rgb(54, 162, 235)',
+        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.1
+      },
+        {
+        label: 'Series 2',
+        data: (function(){ return norm_prices_8; })(),
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.1
+      }]
+      },
+      options: { responsive: true }
+    });
+  })();
+
+  (function() {
+    const _first = (function(){ return z_volumes_13; })();
+    const ctx = document.getElementById('chart1').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: _first.map((_, i) => i),
+        datasets: [{
+        label: 'Series 1',
+        data: (function(){ return z_volumes_13; })(),
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.1
+      }]
+      },
+      options: { responsive: true }
+    });
+  })();
+</script>
+</body>
+</html>
