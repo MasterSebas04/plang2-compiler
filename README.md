@@ -6,3 +6,5 @@
 ![Logo](docs/salami-logo.jpg)
 
 Image by [Likozor](https://www.vectorstock.com/royalty-free-vector/funny-cartoon-cat-craves-sausages-salami-vector-19839610) via VectorStock.com
+
+Link to our [website](https://mastersebas04.github.io/salamis/)!
