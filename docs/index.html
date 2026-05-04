@@ -228,6 +228,43 @@ plot(volumes)</code></pre>
                     <iframe src="Examples/csv_analysis.html" title="CSV Analysis Output"></iframe>
                 </div>
             </article>
+            <article>
+                <h3>7. Birthday Paradox</h3>
+                <pre><code>fn one_trial() ~> Float {
+    let bdays = simulate(100) {
+        floor(sample(Uniform(0.0, 365.0)))
+    }
+    let result: Float = 100.0
+    let found: Float = 0.0
+    for k in (1..100) {
+        if found == 0.0 {
+            let bday_k = slice bdays(k)
+            for j in (0..k) {
+                if slice bdays(j) == bday_k {
+                    if found == 0.0 {
+                        result = k + 1.0
+                        found = 1.0
+                    }
+                }
+            }
+        }
+    }
+    return result
+}
+
+let trials = simulate(100000) {
+    one_trial()
+}
+
+print("Mean people needed: " + format(mean(trials), 2))
+print("Min: " + format(min(trials), 0))
+print("Max: " + format(max(trials), 0))
+histogram(trials)</code></pre>
+                <button onclick="toggleOutput('output7')">Show Output</button>
+                <div id="output7" class="output-box">
+                    <iframe src="Examples/birthday.html" title="Birthday Paradox Output"></iframe>
+                </div>
+            </article>
         </section>
     </main>
     <footer>
