@@ -83,8 +83,6 @@ function inferArithmeticType(lType, rType, op, at) {
     if (op === "/") return FLOAT
     if (typesEqual(lType, rType)) return lType
     if ((lType.kind === "Int" || lType.kind === "Float") && (rType.kind === "Int" || rType.kind === "Float")) return FLOAT
-    validateType(rType, lType, at)
-    return lType
   }
   if (lType.kind === "Vec" && rType.kind === "Vec") {
     validate(typesEqual(lType, rType),
