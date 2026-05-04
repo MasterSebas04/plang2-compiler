@@ -3,7 +3,7 @@ import assert from "node:assert/strict"
 import parse from "../src/parser.js"
 import analyze from "../src/analyzer.js"
 import optimize from "../src/optimizer.js"
-import generate from "../src/generator.js"
+import generate, { generateRepl, buildReplHtml } from "../src/generator.js"
 
 // Strip the preamble (builtins + matmul) so we only compare user code
 const PREAMBLE_END = ".reduce((s, v) => s + v, 0)));\n}"
@@ -200,4 +200,19 @@ describe("The code generator", () => {
       assert.equal(userCode(fixture.source), fixture.expected)
     })
   }
+
+  it("generateRepl uses var and returns plotItems", () => {
+    const program = optimize(analyze(parse("let x = 1\n")))
+    const { js, plotItems } = generateRepl(program, new Map())
+    assert.ok(js.includes("var x_1 = 1"))
+    assert.deepEqual(plotItems, [])
+  })
+
+  it("buildReplHtml returns HTML containing chart.js and a canvas", () => {
+    const program = optimize(analyze(parse("let v: Vec<Float> = [1.0, 2.0]\nplot(v)\n")))
+    const { plotItems } = generateRepl(program, new Map())
+    const html = buildReplHtml("", plotItems)
+    assert.ok(html.includes("chart.js"))
+    assert.ok(html.includes("<canvas"))
+  })
 })

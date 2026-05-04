@@ -67,19 +67,36 @@ function __col(m, n) { return m.map(row => row[n]) }
 function __str(x) { return String(x) }
 function __format(x, n) { return x.toFixed(n) }`
 
-function runGeneration(program) {
+const matmulPreamble = `function __matmul(A, B) {
+  if (!Array.isArray(A[0])) {
+    if (A.length !== B.length) throw new Error(\`Dimension mismatch: Vec(\${A.length}) @ Matrix(\${B.length}x\${B[0].length})\`);
+    return B[0].map((_, c) => A.reduce((s, v, k) => s + v * B[k][c], 0));
+  }
+  if (!Array.isArray(B[0])) {
+    if (A[0].length !== B.length) throw new Error(\`Dimension mismatch: Matrix(\${A.length}x\${A[0].length}) @ Vec(\${B.length})\`);
+    return A.map(row => row.reduce((s, v, k) => s + v * B[k], 0));
+  }
+  if (A[0].length !== B.length) throw new Error(\`Matrix dimension mismatch: (\${A.length}x\${A[0].length}) @ (\${B.length}x\${B[0].length})\`);
+  const rows = A.length, cols = B[0].length, inner = B.length;
+  return Array.from({length: rows}, (_, r) =>
+    Array.from({length: cols}, (_, c) =>
+      Array.from({length: inner}, (_, k) => A[r][k] * B[k][c])
+        .reduce((s, v) => s + v, 0)));
+}`
+
+export const replPreamble = builtinPreamble + "\n" + matmulPreamble
+
+function runGeneration(program, existingNameMap = null, replMode = false) {
   const output = []
   const plotItems = []
 
-  const targetName = (mapping => {
-    return entity => {
-      if (!mapping.has(entity)) {
-        mapping.set(entity, mapping.size + 1)
-      }
-      return `${entity.name}_${mapping.get(entity)}`
-    }
-  })(new Map())
+  const mapping = existingNameMap ?? new Map()
+  const targetName = entity => {
+    if (!mapping.has(entity)) mapping.set(entity, mapping.size + 1)
+    return `${entity.name}_${mapping.get(entity)}`
+  }
 
+  const varDecl = replMode ? "var" : "let"
   const gen = node => generators?.[node?.kind]?.(node) ?? node
 
   const generators = {
@@ -88,7 +105,7 @@ function runGeneration(program) {
     },
 
     LetStatement(s) {
-      output.push(`let ${gen(s.variable)} = ${gen(s.initializer)};`)
+      output.push(`${varDecl} ${gen(s.variable)} = ${gen(s.initializer)};`)
     },
 
     AssignStatement(s) {
@@ -226,27 +243,14 @@ function runGeneration(program) {
     },
   }
 
-  output.push(builtinPreamble)
-  output.push(`function __matmul(A, B) {
-  if (!Array.isArray(A[0])) {
-    if (A.length !== B.length) throw new Error(\`Dimension mismatch: Vec(\${A.length}) @ Matrix(\${B.length}x\${B[0].length})\`);
-    return B[0].map((_, c) => A.reduce((s, v, k) => s + v * B[k][c], 0));
+  if (!replMode) {
+    output.push(builtinPreamble)
+    output.push(matmulPreamble)
   }
-  if (!Array.isArray(B[0])) {
-    if (A[0].length !== B.length) throw new Error(\`Dimension mismatch: Matrix(\${A.length}x\${A[0].length}) @ Vec(\${B.length})\`);
-    return A.map(row => row.reduce((s, v, k) => s + v * B[k], 0));
-  }
-  if (A[0].length !== B.length) throw new Error(\`Matrix dimension mismatch: (\${A.length}x\${A[0].length}) @ (\${B.length}x\${B[0].length})\`);
-  const rows = A.length, cols = B[0].length, inner = B.length;
-  return Array.from({length: rows}, (_, r) =>
-    Array.from({length: cols}, (_, c) =>
-      Array.from({length: inner}, (_, k) => A[r][k] * B[k][c])
-        .reduce((s, v) => s + v, 0)));
-}`)
 
   const userStart = output.length
   gen(program)
-  const needsFs = output.slice(userStart).join("\n").includes("__readCsv")
+  const needsFs = !replMode && output.slice(userStart).join("\n").includes("__readCsv")
   const header  = needsFs ? `import { readFileSync as __readFileSync } from 'node:fs'\n` : ""
   return { js: header + output.join("\n"), plotItems }
 }
@@ -255,10 +259,12 @@ export default function generate(program) {
   return runGeneration(program).js
 }
 
-export function generateHtml(program) {
-  let { js, plotItems } = runGeneration(program)
-  js = js.replace(/^import[^\n]+from ['"]node:fs['"]\n/m, "")
+export function generateRepl(program, nameMap) {
+  const { js, plotItems } = runGeneration(program, nameMap, true)
+  return { js, plotItems }
+}
 
+function buildHtml(js, plotItems) {
   const palette = [
     ["54, 162, 235"],
     ["255, 99, 132"],
@@ -358,4 +364,14 @@ ${chartScripts}
 </script>
 </body>
 </html>`
+}
+
+export function generateHtml(program) {
+  let { js, plotItems } = runGeneration(program)
+  js = js.replace(/^import[^\n]+from ['"]node:fs['"]\n/m, "")
+  return buildHtml(js, plotItems)
+}
+
+export function buildReplHtml(js, plotItems) {
+  return buildHtml(js, plotItems)
 }

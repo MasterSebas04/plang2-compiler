@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs"
-import { execSync } from "node:child_process"
+import { execSync, spawn } from "node:child_process"
 import { basename, extname, dirname, resolve } from "node:path"
 import compile from "./compiler.js"
 
@@ -8,8 +8,15 @@ const source = args.find(a => !a.startsWith("--"))
 const stages = ["parsed", "analyzed", "optimized", "js"]
 const flag   = args.find(a => a.startsWith("--"))?.slice(2)
 
+if (flag === "repl") {
+  const { default: startRepl } = await import("./repl.js")
+  await startRepl()
+  process.exit(0)
+}
+
 if (!source) {
   console.error("Usage: node src/salamis.js <file.sal> [--parsed|--analyzed|--optimized|--js]")
+  console.error("       node src/salamis.js --repl")
   process.exit(1)
 }
 if (flag && !stages.includes(flag)) {
@@ -45,9 +52,16 @@ if (needsHtml) {
   writeFileSync(htmlFile, html)
   console.log(`Chart written: ${htmlFile}`)
   try {
-    const open = process.platform === "win32" ? "start" : process.platform === "darwin" ? "open" : "xdg-open"
-    execSync(`${open} "${htmlFile}"`, { stdio: "ignore" })
+    openBrowser(htmlFile)
   } catch { /* silently skip if browser open fails */ }
+}
+
+function openBrowser(file) {
+  if (process.platform === "win32") {
+    spawn("rundll32.exe", ["url.dll,FileProtocolHandler", file], { windowsHide: true, stdio: "ignore", detached: true }).unref()
+  } else {
+    spawn(process.platform === "darwin" ? "open" : "xdg-open", [file], { stdio: "ignore", detached: true }).unref()
+  }
 }
 
 function inlineCsvInHtml(html, dir) {

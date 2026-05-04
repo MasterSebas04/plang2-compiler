@@ -5,7 +5,7 @@ const grammarSource = await fs.readFile("./src/salamis.ohm", "utf-8")
 const grammar = ohm.grammar(grammarSource)
 
 export default function parse(sourceCode) {
-  const match = grammar.match(sourceCode)
+  const match = grammar.match(sourceCode.replace(/\r\n/g, "\n"))
   if (match.failed()) {
     throw new Error(match.message)
   }
