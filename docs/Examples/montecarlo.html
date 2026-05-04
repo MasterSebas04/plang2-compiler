@@ -4,11 +4,22 @@
   <meta charset="UTF-8">
   <title>Salamis Output</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }</style>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }
+    #__output { background: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 0.9rem; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; white-space: pre-wrap; }
+    #__output:empty { display: none; }
+  </style>
 </head>
 <body>
+<div id="__output"></div>
 <canvas id="chart0" style="max-height:400px;margin-bottom:2rem"></canvas>
 <script>
+const __out = document.getElementById('__output');
+const __origLog = console.log;
+console.log = (...args) => {
+  __out.textContent += args.join(' ') + '\n';
+  __origLog(...args);
+};
 function __len(v) { return v.length }
 function __sum(v) { return v.reduce((a, b) => a + b, 0) }
 function __mean(v) { return __sum(v) / v.length }
@@ -46,6 +57,15 @@ function __col(m, n) { return m.map(row => row[n]) }
 function __str(x) { return String(x) }
 function __format(x, n) { return x.toFixed(n) }
 function __matmul(A, B) {
+  if (!Array.isArray(A[0])) {
+    if (A.length !== B.length) throw new Error(`Dimension mismatch: Vec(${A.length}) @ Matrix(${B.length}x${B[0].length})`);
+    return B[0].map((_, c) => A.reduce((s, v, k) => s + v * B[k][c], 0));
+  }
+  if (!Array.isArray(B[0])) {
+    if (A[0].length !== B.length) throw new Error(`Dimension mismatch: Matrix(${A.length}x${A[0].length}) @ Vec(${B.length})`);
+    return A.map(row => row.reduce((s, v, k) => s + v * B[k], 0));
+  }
+  if (A[0].length !== B.length) throw new Error(`Matrix dimension mismatch: (${A.length}x${A[0].length}) @ (${B.length}x${B[0].length})`);
   const rows = A.length, cols = B[0].length, inner = B.length;
   return Array.from({length: rows}, (_, r) =>
     Array.from({length: cols}, (_, c) =>

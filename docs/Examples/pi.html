@@ -12,8 +12,7 @@
 </head>
 <body>
 <div id="__output"></div>
-<canvas id="chart0" style="max-height:400px;margin-bottom:2rem"></canvas>
-<canvas id="chart1" style="max-height:400px;margin-bottom:2rem"></canvas>
+
 <script>
 const __out = document.getElementById('__output');
 const __origLog = console.log;
@@ -24,7 +23,6 @@ console.log = (...args) => {
 function __len(v) { return v.length }
 function __sum(v) { return v.reduce((a, b) => a + b, 0) }
 function __mean(v) { return __sum(v) / v.length }
-function __std(v) { const m = __mean(v); return Math.sqrt(v.reduce((a, x) => a + (x - m) ** 2, 0) / v.length) }
 function __max(v) { return Math.max(...v) }
 function __min(v) { return Math.min(...v) }
 function __Normal(mu, sigma) { return { kind: "Normal", mu, sigma } }
@@ -74,77 +72,17 @@ function __matmul(A, B) {
       Array.from({length: inner}, (_, k) => A[r][k] * B[k][c])
         .reduce((s, v) => s + v, 0)));
 }
-let m_1 = [[2024, 142.5, 3200000], [2024, 145, 2900000], [2024, 141.2, 3500000], [2024, 148.7, 4100000], [2024, 150.3, 3800000], [2024, 149.1, 2700000], [2024, 153.4, 4500000], [2024, 151.8, 3300000], [2024, 155.2, 5100000], [2024, 157.6, 4800000]];
-let prices_2 = __col(m_1, 1);
-let volumes_3 = __col(m_1, 2);
-let avg_price_4 = __mean(prices_2);
-let lo_price_5 = __min(prices_2);
-let hi_price_6 = __max(prices_2);
-let std_price_7 = __std(prices_2);
-console.log("=== Price Statistics ===");
-console.log(("Mean:  " + __format(avg_price_4, 2)));
-console.log(("Min:   " + __format(lo_price_5, 2)));
-console.log(("Max:   " + __format(hi_price_6, 2)));
-console.log(("Std:   " + __format(std_price_7, 2)));
-let price_range_8 = (hi_price_6 - lo_price_5);
-let norm_prices_9 = prices_2.map(__v => __v - lo_price_5).map(__v => __v / price_range_8);
-let avg_vol_10 = __mean(volumes_3);
-let stddev_vol_11 = __std(volumes_3);
-let z_volumes_12 = volumes_3.map(__v => __v - avg_vol_10).map(__v => __v / stddev_vol_11);
-console.log("=== Volume Statistics ===");
-console.log(("Mean volume: " + __format(avg_vol_10, 0)));
-console.log(("Std dev:     " + __format(stddev_vol_11, 0)));
+let hits_1 = 0.0;
+for (let i_2 = 0; i_2 < 2000; i_2++) {
+let x_3 = __sample(__Uniform(0.0, 1.0));
+let y_4 = __sample(__Uniform(0.0, 1.0));
+if ((((x_3 * x_3) + (y_4 * y_4)) <= 1.0)) {
+hits_1 = (hits_1 + 1.0);
+}
+}
+let pi_est_5 = ((4.0 * hits_1) / 2000.0);
+console.log(("Pi estimate: " + __format(pi_est_5, 4)));
 
-  (function() {
-    const _first = (function(){ return prices_2; })();
-    const ctx = document.getElementById('chart0').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: _first.map((_, i) => i),
-        datasets: [{
-        label: 'Series 1',
-        data: (function(){ return prices_2; })(),
-        borderColor: 'rgb(54, 162, 235)',
-        backgroundColor: 'rgba(54, 162, 235, 0.1)',
-        borderWidth: 2,
-        fill: false,
-        tension: 0.1
-      },
-        {
-        label: 'Series 2',
-        data: (function(){ return norm_prices_9; })(),
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.1)',
-        borderWidth: 2,
-        fill: false,
-        tension: 0.1
-      }]
-      },
-      options: { responsive: true }
-    });
-  })();
-
-  (function() {
-    const _first = (function(){ return z_volumes_12; })();
-    const ctx = document.getElementById('chart1').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: _first.map((_, i) => i),
-        datasets: [{
-        label: 'Series 1',
-        data: (function(){ return z_volumes_12; })(),
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.1)',
-        borderWidth: 2,
-        fill: false,
-        tension: 0.1
-      }]
-      },
-      options: { responsive: true }
-    });
-  })();
 </script>
 </body>
 </html>

@@ -11,24 +11,49 @@
     <header>
         <nav>
             <ul>
+                <li><a href="#developers">Developers</a></li>
                 <li><a href="#story">Story</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#checks">Static Checks</a></li>
                 <li><a href="#examples">Examples</a></li>
-                <li><a href = "#developers">Developers</a></li>    
             </ul>
         </nav>
     <section>
         <p> Data. Simulation. Visualization</p>
         <h2> A small programming language for statistical thinking.</h2>
         <p>
-            Salamis is a statically typed language designed for working with 
+            Salamis is a statically typed language designed for working with
             numbers, vectors, distributions, simulations, csv data, and simple visualization.
         </p>
         <a href="https://github.com/laithtitouah/salamis">View GitHub Repo </a>
-    </section>    
+    </section>
     </header>
     <main>
+        <section id="developers">
+            <h2>Developers</h2>
+            <div class="shrine">
+                <div class="shrine-dev" style="grid-area:seb">
+                    <img src="seb.png" alt="Sebastian">
+                    <span>Sebastian Lange</span>
+                </div>
+                <div class="shrine-dev" style="grid-area:marcus">
+                    <img src="marcus.png" alt="Marcus">
+                    <span>Marcus Razo</span>
+                </div>
+                <div class="shrine-cat" style="grid-area:cat">
+                    <img src="salami-logo.jpg" alt="The Sacred Salami Cat">
+                    <span>🙏 The Sacred Salami Cat 🙏</span>
+                </div>
+                <div class="shrine-dev" style="grid-area:sammy">
+                    <img src="sammy.png" alt="Sammy">
+                    <span>Sammy Santos</span>
+                </div>
+                <div class="shrine-dev" style="grid-area:laith">
+                    <img src="laith.png" alt="Laith">
+                    <span>Laith Titouah</span>
+                </div>
+            </div>
+        </section>
         <section id="story">
             <h2>The Story</h2>
             <p>
@@ -44,44 +69,74 @@
         </section>
         <section id="features">
             <h2>Language Features</h2>
-            <ul>
-                <li>Static types: Int, Float, Bool, Str, Void, Vec, Matrix, and distributions </li>
-                <li>Variables, assignment, functions, parameters, and return values</li>
-                <li>If / else-if / else conditionals</li>
-                <li>Range loops, collection loops, and while-style loops</li>
-                <li>Vector literals and element-wise vector arithmetic</li>
-                <li>Matrix multiplication</li>
-                <li>Built-in statistical functions like mean, sum, min, and max</li>
-                <li>Probability distributions: Normal, Bernoulli, Poisson, and Uniform</li>
-                <li>Simulation expressions using repeated samplings</li>
-                <li>Plot and histogram generation through html output</li>
-                <li>CSV reading and column extraction</li>
-            </ul>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔢</div>
+                    <h3>Types</h3>
+                    <p>Int, Float, Bool, Str, Vec&lt;T&gt;, Matrix&lt;T&gt;, and distribution types. Type annotations are optional — types are inferred where possible.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔀</div>
+                    <h3>Control Flow</h3>
+                    <p>If / else-if / else conditionals, range-based for loops, collection for loops, and while-style loops.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">𝑓</div>
+                    <h3>Functions</h3>
+                    <p>Named functions with typed parameters and optional return type annotations. Functions are first-class and support the pipe operator <code>|&gt;</code>.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📐</div>
+                    <h3>Vectors &amp; Matrices</h3>
+                    <p>Vec and Matrix literals, element-wise arithmetic, matrix multiplication with <code>@</code>, and index/range slicing.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Stats Builtins</h3>
+                    <p>mean, sum, min, max, len — plus standard math functions like sqrt, log, abs, sin, cos, pow, and more.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎲</div>
+                    <h3>Distributions</h3>
+                    <p>Normal, Bernoulli, Poisson, and Uniform distributions. Sample from them with <code>sample()</code> or run repeated trials with <code>simulate()</code>.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📁</div>
+                    <h3>CSV Data</h3>
+                    <p>Load CSV files as a <code>Matrix&lt;Float&gt;</code> with <code>readCsv()</code> and extract columns with <code>col()</code>.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Visualization</h3>
+                    <p>Line plots and histograms rendered as interactive HTML charts via Chart.js — no extra setup needed.</p>
+                </div>
+            </div>
         </section>
         <section id="checks">
-            <h2>Static, Safety, and Security</h2>
-            <ul>
-                <li>Variables must be declared before use</li>
-                <li>Variables cannot be redeclared in the same scope</li>
-                <li>Assignments must match the declared variable type</li>
-                <li>Function calls must use the correct number of arguments</li>
-                <li>Return statements must appear inside functions</li>
-                <li>Return values must match the declared function return type</li>
-                <li>If and while conditions must be Bool</li>
-                <li>Arithmetic expressionss must use valid numeric or vector operands</li>
-                <li>Matrix multiplication requires matrix operands</li>
-                <li>Plot and histogram statements require vector output</li>
-                <li>sample(...) only accepts distribution values</li>
-                <li>simulate(...) requires an Int count and a numeric body expression</li>
-            </ul>
+            <h2>Static Checks</h2>
+            <p class="checks-intro">These errors are caught at compile time before any code runs.</p>
+            <div class="checks-grid">
+                <div class="check-item">✔ Variables must be declared before use</div>
+                <div class="check-item">✔ No redeclaration in the same scope</div>
+                <div class="check-item">✔ Assignment types must match the declared type</div>
+                <div class="check-item">✔ Function calls must supply the correct number of arguments</div>
+                <div class="check-item">✔ Argument types must match parameter types</div>
+                <div class="check-item">✔ Return must appear inside a function</div>
+                <div class="check-item">✔ Return type must match the declared return type</div>
+                <div class="check-item">✔ If and while conditions must be Bool</div>
+                <div class="check-item">✔ Arithmetic operands must be numeric or Vec</div>
+                <div class="check-item">✔ <code>@</code> operands must be Vec or Matrix</div>
+                <div class="check-item">✔ plot and histogram require a Vec argument</div>
+                <div class="check-item">✔ sample() only accepts a distribution value</div>
+            </div>
         </section>
         <section id="examples">
             <h2>Example Programs</h2>
             <article>
                 <h3>1. Basic Statistics</h3>
                 <pre><code>let data: Vec&lt;Float&gt; = [10.0, 20.0, 30.0, 40.0]
-                    print(mean(data))
-                    print(sum(data))</code></pre>
+print(mean(data))
+print(sum(data))</code></pre>
                     <button onclick="toggleOutput('output1')">Show Output</button>
                     <div id="output1" class="output-box">
                         <p>25.0</p>
@@ -91,10 +146,10 @@
             <article>
                 <h3>2. Function with Static Types</h3>
                 <pre><code>fn square(x: Float) ~&gt; Float {
-                    return x * x 
-                }    
-                let result: Float = square(5.0)
-                print(result)</code></pre>
+    return x * x
+}
+let result: Float = square(5.0)
+print(result)</code></pre>
                 <button onclick="toggleOutput('output2')"> Show Output </button>
                 <div id="output2" class="output-box">
                     <p>25.0</p>
@@ -102,74 +157,71 @@
             </article>
             <article>
                 <h3>3. Monte Carlo Simulation</h3>
-                <pre><code>
-                    let results = simulate(2000) {
-                        sample(Normal(0.0,1.0))
-                    } 
-                print("=== Normal(0,1) - 2000 samples ===")
-                print("Mean: "+ format(mean(results), 4))
-                histogram(results)
-                </code></pre>
+                <pre><code>let results = simulate(2000) {
+    sample(Normal(0.0,1.0))
+}
+print("=== Normal(0,1) - 2000 samples ===")
+print("Mean: " + format(mean(results), 4))
+histogram(results)</code></pre>
                 <button onclick="toggleOutput('output3')">Show Output</button>
                 <div id="output3" class = "output-box">
                 <iframe src="Examples/montecarlo.html" title="Monte Carlo Simulation Output"></iframe>
                 </div>
             </article>
             <article>
-            <h3>4. Descriptive Statistics and Normalization</h3>
-            <pre><code>
-                let data: Vec&lt;Float&gt; = [2.0, 4.0, 4.0, 4.0, 5.0, 7.0, 9.0]
-                let avg = mean(data)
-                let lo = min(data)
-                let hi = max(data)
-                let normalized = (data - lo) / (hi - lo)
-                plot(data)
-                plot(normalized) </code></pre>
+                <h3>4. Monte Carlo Pi Estimation</h3>
+                <pre><code>let hits: Float = 0.0
+for i in (0..2000) {
+    let x = sample(Uniform(0.0, 1.0))
+    let y = sample(Uniform(0.0, 1.0))
+    if x * x + y * y <= 1.0 {
+        hits = hits + 1.0
+    }
+}
+let pi_est = 4.0 * hits / 2000.0
+print("Pi estimate: " + format(pi_est, 4))</code></pre>
                 <button onclick="toggleOutput('output4')">Show Output</button>
-
                 <div id="output4" class="output-box">
-                    <iframe src="Examples/stats.html" title="Descriptive Statiscs Output"></iframe>
-                    </div>
-            </article>
-            <article>
-                <h3>5. CSV Data Analysis </h3>
-                <pre><code>
-                    let m = readCsv("prices.csv")
-                    let prices = col(m,1)
-                    let volumes = col(m,2)
-
-                    let avg_price = mean(prices)
-                    let lo_price = min(prices)
-                    let hi_price = max(prices)
-
-                    let norm_prices = (prices - lo_price) /(hi_price - lo_price)
-                    plot(prices, norm_prices)
-                    plot(volumes)
-                </code></pre>
-                <button onclick="toggleOutput('output5')">Show Output</button>
-                <div id="output5" class="output-box">
-                    <iframe src="Examples/csv_analysis.html" title = "CSV Analysis Output"></iframe>
+                    <p>Pi estimate: 3.1418</p>
                 </div>
             </article>
-            <section id="developers">
-                <article>
-                <h2>Developers</h2>
-                <h3>
-                    Laith Titouah
-                </h3>
-                </article>
-                <article>
-                    <h2>Marcus Razo</h2>
-                </article>
-                <article>
-                    <h2>Sebastian Lange</h2>
-                </article>
+            <article>
+            <h3>5. Descriptive Statistics and Normalization</h3>
+            <pre><code>let data: Vec&lt;Float&gt; = [2.0, 4.0, 4.0, 4.0, 5.0, 7.0, 9.0]
+let avg = mean(data)
+let lo = min(data)
+let hi = max(data)
+let normalized = (data - lo) / (hi - lo)
+plot(data)
+plot(normalized)</code></pre>
+                <button onclick="toggleOutput('output5')">Show Output</button>
+                <div id="output5" class="output-box">
+                    <iframe src="Examples/stats.html" title="Descriptive Statistics Output"></iframe>
+                </div>
+            </article>
+            <article>
+                <h3>6. CSV Data Analysis</h3>
+                <pre><code>let m = readCsv("prices.csv")
+let prices = col(m, 1)
+let volumes = col(m, 2)
 
-            </section>
-        </main>
-        <footer>
-            <p> Salamis Programming language • Built for CMSI language design. </p>
-        </footer>
-        <script src="script.js"></script>
+let avg_price = mean(prices)
+let lo_price = min(prices)
+let hi_price = max(prices)
+
+let norm_prices = (prices - lo_price) / (hi_price - lo_price)
+plot(prices, norm_prices)
+plot(volumes)</code></pre>
+                <button onclick="toggleOutput('output6')">Show Output</button>
+                <div id="output6" class="output-box">
+                    <iframe src="Examples/csv_analysis.html" title="CSV Analysis Output"></iframe>
+                </div>
+            </article>
+        </section>
+    </main>
+    <footer>
+        <p> Salamis Programming language • Built for CMSI language design. </p>
+    </footer>
+    <script src="script.js"></script>
 </body>
 </html>

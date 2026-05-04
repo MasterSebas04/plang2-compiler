@@ -14,6 +14,7 @@ const jsBuiltins = new Map([
   ["len",      "__len"],
   ["sum",      "__sum"],
   ["mean",     "__mean"],
+  ["std",      "__std"],
   ["max",      "__max"],
   ["min",      "__min"],
   ["Normal",   "__Normal"],
@@ -31,6 +32,7 @@ const builtinPreamble = `\
 function __len(v) { return v.length }
 function __sum(v) { return v.reduce((a, b) => a + b, 0) }
 function __mean(v) { return __sum(v) / v.length }
+function __std(v) { const m = __mean(v); return Math.sqrt(v.reduce((a, x) => a + (x - m) ** 2, 0) / v.length) }
 function __max(v) { return Math.max(...v) }
 function __min(v) { return Math.min(...v) }
 function __Normal(mu, sigma) { return { kind: "Normal", mu, sigma } }
@@ -335,11 +337,22 @@ export function generateHtml(program) {
   <meta charset="UTF-8">
   <title>Salamis Output</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }</style>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }
+    #__output { background: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 0.9rem; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; white-space: pre-wrap; }
+    #__output:empty { display: none; }
+  </style>
 </head>
 <body>
+<div id="__output"></div>
 ${canvases}
 <script>
+const __out = document.getElementById('__output');
+const __origLog = console.log;
+console.log = (...args) => {
+  __out.textContent += args.join(' ') + '\\n';
+  __origLog(...args);
+};
 ${js}
 ${chartScripts}
 </script>

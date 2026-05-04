@@ -150,6 +150,7 @@ export const builtins = new Map([
   ["len",      functionObject("len",      [param("v", VEC_FLOAT)], INT)],
   ["sum",      functionObject("sum",      [param("v", VEC_FLOAT)], FLOAT)],
   ["mean",     functionObject("mean",     [param("v", VEC_FLOAT)], FLOAT)],
+  ["std",      functionObject("std",      [param("v", VEC_FLOAT)], FLOAT)],
   ["max",      functionObject("max",      [param("v", VEC_FLOAT)], FLOAT)],
   ["min",      functionObject("min",      [param("v", VEC_FLOAT)], FLOAT)],
   // CSV
