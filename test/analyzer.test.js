@@ -105,6 +105,13 @@ const semanticChecks = [
   ["str of Bool", "let x = str(true)\n"],
   ["format of Float", 'let x = format(3.14, 2)\n'],
 
+  // Mixed Int/Float arithmetic (promotes to Float)
+  ["Float + Int allowed", "let x: Float = 1.0 + 1\n"],
+  ["Int + Float allowed", "let x: Float = 1 + 1.0\n"],
+  ["Float / Int allowed", "let x: Float = 10.0 / 3\n"],
+  ["Int / Int gives Float", "let x: Float = 10 / 3\n"],
+  ["floor division Int // Int", "let x: Int = 10 // 3\n"],
+
 ]
 
 const semanticErrors = [

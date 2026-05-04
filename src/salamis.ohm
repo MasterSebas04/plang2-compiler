@@ -65,6 +65,7 @@ Salamis {
         | Exp3
 
     Exp3 = Exp3 "*" Exp4                     --mul
+        | Exp3 "//" Exp4                    --floordiv
         | Exp3 "/" Exp4                     --div
         | Exp4
 
