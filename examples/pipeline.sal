@@ -1,0 +1,36 @@
+-- Define reusable pipeline functions
+fn normalize(v: Vec<Float>) ~> Vec<Float> {
+    return (v - min(v)) / (max(v) - min(v))
+}
+
+fn zscore(v: Vec<Float>) ~> Vec<Float> {
+    return (v - mean(v)) / std(v)
+}
+
+-- Simulate 500 stock-like daily returns: Normal(mean=2%, std=15%)
+let returns = simulate(500) {
+    sample(Normal(0.02, 0.15))
+}
+
+print("=== Raw Returns ===")
+print("Mean: " + format(returns |> mean, 4))
+print("Std:  " + format(returns |> std, 4))
+print("Min:  " + format(returns |> min, 4))
+print("Max:  " + format(returns |> max, 4))
+
+-- Pipe into normalize: rescales values to [0, 1]
+let normed = returns |> normalize
+
+print("=== After Normalization ===")
+print("Mean: " + format(normed |> mean, 4))
+print("Min:  " + format(normed |> min, 4))
+print("Max:  " + format(normed |> max, 4))
+
+-- Pipe into zscore: centers at 0 with std dev 1
+let zscored = returns |> zscore
+
+print("=== After Z-Scoring ===")
+print("Mean: " + format(zscored |> mean, 4))
+print("Std:  " + format(zscored |> std, 4))
+
+histogram(returns)

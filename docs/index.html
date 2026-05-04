@@ -19,13 +19,16 @@
             </ul>
         </nav>
     <section>
-        <p> Data. Simulation. Visualization</p>
-        <h2> A small programming language for statistical thinking.</h2>
+        <p> Curing the world from bad code</p>
+        <h2> SALAMIS.</h2>
+        <h3 class="header-sub">A cut above the rest.</h3>
         <p>
-            Salamis is a statically typed language designed for working with
-            numbers, vectors, distributions, simulations, csv data, and simple visualization.
+            Built for math minds. Salamis lets you simulate distributions, crunch vectors, and visualize data without the hassle.
         </p>
-        <a href="https://github.com/laithtitouah/salamis">View GitHub Repo </a>
+        <div class="header-links">
+            <a href="https://github.com/MasterSebas04/salamis">View GitHub Repo</a>
+            <a href="https://github.com/MasterSebas04/salamis/blob/main/README.md">README</a>
+        </div>
     </section>
     </header>
     <main>
@@ -57,10 +60,12 @@
         <section id="story">
             <h2>The Story</h2>
             <p>
-                Salamis was created to make statistical and data-centered programming feel
-                lightweight, readable, and beginner friendly. Instead of writing long Javascript
-                programs just to sample from distributions, calculate averages, or graph data,
-                Salamis gives users a focused syntax for exploring numerical ideas quickly.
+                Salamis (<strong>S</strong>ammy, <strong>L</strong>aith, <strong>M</strong>arcus, 
+                <strong>I</strong>ncluding <strong>S</strong>ebastian) is named after its four founders, 
+                and it's so satisfying it'll make you hungry to code just by thinking about it. It is created 
+                to make statistical and data-centered programming feel readable and beginner friendly. Ready right out of the box. 
+                Think Python's clean syntax meets R's statistical power. Salamis sits right in between: more structured than R, 
+                more math-native than Python, with no (or at least minimal) compromises on either end.
             </p>
             <p>
                 The language comines familiar programming tools,such as variables, functions,loops, conditionals, and static types with built-in support
@@ -73,7 +78,7 @@
                 <div class="feature-card">
                     <div class="feature-icon">🔢</div>
                     <h3>Types</h3>
-                    <p>Int, Float, Bool, Str, Vec&lt;T&gt;, Matrix&lt;T&gt;, and distribution types. Type annotations are optional — types are inferred where possible.</p>
+                    <p>Int, Float, Bool, Str, Vec&lt;T&gt;, Matrix&lt;T&gt;, and distribution types. Type annotations are optional. Types are inferred where possible.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🔀</div>
@@ -93,7 +98,7 @@
                 <div class="feature-card">
                     <div class="feature-icon">📊</div>
                     <h3>Stats Builtins</h3>
-                    <p>mean, sum, min, max, len — plus standard math functions like sqrt, log, abs, sin, cos, pow, and more.</p>
+                    <p>mean, sum, min, max, std, len, plus standard math functions like sqrt, log, abs, sin, cos, pow, and more.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🎲</div>
@@ -108,7 +113,7 @@
                 <div class="feature-card">
                     <div class="feature-icon">📈</div>
                     <h3>Visualization</h3>
-                    <p>Line plots and histograms rendered as interactive HTML charts via Chart.js — no extra setup needed.</p>
+                    <p>Line plots and histograms rendered as interactive HTML charts via Chart.js. No extra setup needed.</p>
                 </div>
             </div>
         </section>
@@ -124,7 +129,7 @@
                 <div class="check-item">✔ Return must appear inside a function</div>
                 <div class="check-item">✔ Return type must match the declared return type</div>
                 <div class="check-item">✔ If and while conditions must be Bool</div>
-                <div class="check-item">✔ Arithmetic operands must be numeric or Vec</div>
+                <div class="check-item">✔ Matrix literals must have consistent row lengths, caught before any code runs</div>
                 <div class="check-item">✔ <code>@</code> operands must be Vec or Matrix</div>
                 <div class="check-item">✔ plot and histogram require a Vec argument</div>
                 <div class="check-item">✔ sample() only accepts a distribution value</div>
@@ -220,7 +225,7 @@ plot(volumes)</code></pre>
         </section>
     </main>
     <footer>
-        <p> Salamis Programming language • Built for CMSI language design. </p>
+        <p> Salamis Programming Language • No Nitrates or Nitrites, just code.</p>
     </footer>
     <script src="script.js"></script>
 </body>

@@ -15,90 +15,130 @@ html {
 body {
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
-    background: #f7f4ec;
+    background: #ffffff;
     color: #252525;
     line-height: 1.6;
 }
+
 header {
-    background: linear-gradient(135deg, #33202a, #5f3f4f, #a66a54);
-    color: white;
-    padding: 1.5rem 2rem 4rem;
+    background: #ffffff;
+    color: #18101a;
+    padding: 0;
+    border-bottom: 4px solid #18101a;
 }
 
 nav {
-    max-width: 1100px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
     display: flex;
-    justify-content: space between;
+    justify-content: center;
     align-items: center;
-    gap: 1rem;
-}
-
-nav h1{
-    margin:0;
-    font-size: 1.8rem;
-    letter-spacing:1px;
+    padding: 1rem 2rem;
+    border-bottom: 4px solid #18101a;
+    background: #18101a;
 }
 
 nav ul {
     list-style: none;
     display: flex;
     flex-wrap: wrap;
-    gap:1rem;
-    margin:0;
+    gap: 0;
+    margin: 0;
     padding: 0;
 }
-nav a{
-    color: white;
+
+nav a {
+    color: #ffffff;
     text-decoration: none;
-    font-weight: bold;
-    opacity:0.9s;
-}
-nav a:hover{
-    opacity:1;
-    text-decoration: underline;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.4rem 1.2rem;
+    border-right: 2px solid rgba(247,244,236,0.2);
 }
 
-header section{
-    max-width: 900px;
-    margin: 4rem auto 0;
-    text-align: center;
+nav a:hover {
+    background: #f3d8a6;
+    color: #18101a;
+}
+
+header section {
+    max-width: 100%;
+    margin: 0;
+    padding: 5rem 4rem 6rem;
+    text-align: left;
+    background: #18101a;
+    border-bottom: 4px solid #18101a;
 }
 
 header section p:first-child {
     text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: 0.9rem;
-    font-weight:bold;
-    color: #f3d8a6;
-}
-header h2{
-    font-size: clamp(2.2rem, 6vw, 4.5rem);
-    line-height: 1.05;
-    margin: 1rem 0;
-    color: #a78682;
-    text-shadow: 0 3px 10px rgba(0,0,0,0.6),
-    0 0 6px rgba(167,134,130,0.3);
-}
-header section p{
-    max-width:700px;
-    margin: 1rem auto;
-    font-size: 1.1rem;
-}
-header section a{
-    display: inline-block;
-    margin-top: 1.5rem;
-    padding: 0.8rem 1,2rem;
-    border-radius: 999px;
-    background: #f3d8a6;
-    color: #33202a;
-    text-decoration: none;
-    font-weight: bold;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    letter-spacing: 0.05em;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 900;
+    color: rgba(247,244,236,0.5);
+    margin-bottom: 0.5rem;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 0.95;
+    max-width: 100%;
 }
 
-header section a:hover{
-    transform:translateY(-2px);
+header h2 {
+    font-size: clamp(5rem, 13vw, 11rem);
+    line-height: 0.9;
+    margin: 0 0 0rem;
+    color: #ffffff;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+}
+
+.header-sub {
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 900;
+    color: #f3d8a6;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin: 0 0 2.5rem;
+}
+
+header section p {
+    max-width: 540px;
+    margin: 0 0 2rem;
+    font-size: 1rem;
+    color: rgba(247,244,236,0.6);
+    line-height: 1.6;
+    font-family: "Courier New", monospace;
+}
+
+.header-links {
+    display: flex;
+    gap: 0;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+header section a {
+    display: inline-block;
+    padding: 0.8rem 1.6rem;
+    border-radius: 0;
+    background: #18101a;
+    color: #ffffff;
+    border: 4px solid #18101a;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: "Courier New", monospace;
+}
+
+header section a:hover {
+    background: #f3d8a6;
+    color: #18101a;
+    border-color: #18101a;
 }
 main {
     max-width: 1100px;
@@ -112,16 +152,17 @@ section{
 main > section{
     background: white;
     padding: 2rem;
-    border-radius: 22px;
-    box-shadow: 0 10px 30px rgba(51,32,42,0.08);
+    border: 2px solid #18101a;
 }
 h2{
     margin-top: 0;
-    color: #51344d;
+    color: #18101a;
     font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
 }
 h3{
-    color: #6f5060
+    color: #18101a;
 }
 .feature-grid {
     display: grid;
@@ -131,8 +172,8 @@ h3{
 }
 
 .feature-card {
-    background: #f7f4ec;
-    border: 1px solid #eadfce;
+    background: #ffffff;
+    border: 1px solid #18101a;
     border-radius: 16px;
     padding: 1.3rem 1.2rem;
 }
@@ -145,7 +186,7 @@ h3{
 .feature-card h3 {
     margin: 0 0 0.4rem;
     font-size: 1rem;
-    color: #51344d;
+    color: #18101a;
 }
 
 .feature-card p {
@@ -163,7 +204,7 @@ h3{
 }
 
 .checks-intro {
-    color: #7a5060;
+    color: #252525;
     font-style: italic;
     margin-bottom: 1rem;
 }
@@ -175,8 +216,8 @@ h3{
 }
 
 .check-item {
-    background: #f7f4ec;
-    border: 1px solid #eadfce;
+    background: #ffffff;
+    border: 1px solid #18101a;
     border-radius: 10px;
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
@@ -194,14 +235,14 @@ h3{
     margin: 1.5rem 0;
     padding: 1.2rem;
     border-radius: 18px;
-    background: #f7f4ec;
-    border: 1px solid #eadfce;
+    background: #ffffff;
+    border: 1px solid #18101a;
 }
 
 pre {
     overflow-x: auto;
     background: #221822;
-    color: #f7f4ec;
+    color: #ffffff;
     padding: 1rem;
     border-radius: 14px;
     font-size: 0.95rem;
@@ -215,7 +256,7 @@ code {
 .shrine-tagline {
     text-align: center;
     font-style: italic;
-    color: #7a5060;
+    color: #252525;
     letter-spacing: 1px;
     margin-bottom: 1.5rem;
 }
@@ -258,7 +299,7 @@ code {
 .shrine-dev span {
     font-size: 0.95rem;
     font-weight: bold;
-    color: #51344d;
+    color: #18101a;
     text-align: center;
 }
 
@@ -281,7 +322,7 @@ code {
 
 .shrine-cat span {
     font-size: 0.9rem;
-    color: #7a5060;
+    color: #252525;
     font-style: italic;
     text-align: center;
 }
@@ -295,7 +336,7 @@ code {
 footer {
     text-align: center;
     padding:2rem;
-    background: #33202a;
+    background: #18101a;
     color: white;
 }
 .output-box {
@@ -303,7 +344,7 @@ footer {
     margin-top: 1rem;
     padding: 1rem;
     background: #221822;
-    color: #f7f4ec;
+    color: #ffffff;
     border-radius: 12px;
     font-family: monospace;
 }
