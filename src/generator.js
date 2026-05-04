@@ -169,6 +169,7 @@ function runGeneration(program) {
     BinaryExpression(e) {
       const l = gen(e.left)
       const r = gen(e.right)
+      if (e.operator === "//") return `Math.floor((${l}) / (${r}))`
       const op = { "==": "===", "!=": "!==" }[e.operator] ?? e.operator
 
       if (e.type?.kind === "Vec") {

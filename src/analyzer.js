@@ -305,6 +305,16 @@ export default function analyze(match) {
       return core.binaryExp(l, "*", r, type)
     },
 
+    Exp3_floordiv(left, _op, right) {
+      const l = left.analyze()
+      const r = right.analyze()
+      const lType = l.type ?? l
+      const rType = r.type ?? r
+      validate(isNumeric(lType), `Expected numeric, got ${typeString(lType)}`, left.source)
+      validate(isNumeric(rType), `Expected numeric, got ${typeString(rType)}`, right.source)
+      return core.binaryExp(l, "//", r, INT)
+    },
+
     Exp3_div(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
