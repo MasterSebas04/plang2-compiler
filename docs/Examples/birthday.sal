@@ -1,0 +1,35 @@
+-- Birthday Paradox: how many people until two share a birthday?
+-- Run 1000 trials and plot the distribution
+-- No memeberhsip testing
+
+fn one_trial() ~> Float {
+    let bdays = simulate(100) {
+        floor(sample(Uniform(0.0, 365.0)))
+    }
+    let result: Float = 100.0
+    let found: Float = 0.0
+    for k in (1..100) {
+        if found == 0.0 {
+            let bday_k = slice bdays(k)
+            for j in (0..k) {
+                if slice bdays(j) == bday_k {
+                    if found == 0.0 {
+                        result = k + 1.0
+                        found = 1.0
+                    }
+                }
+            }
+        }
+    }
+    return result
+}
+
+let trials = simulate(100000) { 
+    one_trial() 
+}
+
+print("Mean people needed: " + format(mean(trials), 2))
+print("Min: " + format(min(trials), 0))
+print("Max: " + format(max(trials), 0))
+
+histogram(trials)
