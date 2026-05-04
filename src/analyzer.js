@@ -80,6 +80,7 @@ function validateVecOrMatrix(t, at) {
 function inferArithmeticType(lType, rType, op, at) {
   if (op === "+" && lType.kind === "Str" && rType.kind === "Str") return STR
   if (isNumeric(lType) && isNumeric(rType)) {
+    if (op === "/") return FLOAT
     if (typesEqual(lType, rType)) return lType
     if ((lType.kind === "Int" || lType.kind === "Float") && (rType.kind === "Int" || rType.kind === "Float")) return FLOAT
     validateType(rType, lType, at)
