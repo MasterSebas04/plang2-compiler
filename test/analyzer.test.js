@@ -94,6 +94,12 @@ const semanticChecks = [
   ["slice variable by index", "let v: Vec<Float> = [1.0, 2.0, 3.0]\nlet x = slice v(0)\n"],
   ["slice variable by range", "let v: Vec<Float> = [1.0, 2.0, 3.0]\nlet x = slice v(0..2)\n"],
 
+  // Matrix literal and matmul variants
+  ["matrix literal 2x2", "let A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\n"],
+  ["slice matrix by index yields Vec", "let A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\nlet r = slice A(0)\n"],
+  ["Vec @ Matrix matmul", "let v: Vec<Float> = [1.0, 2.0]\nlet A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\nlet r = v @ A\n"],
+  ["Matrix @ Vec matmul", "let A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\nlet v: Vec<Float> = [1.0, 2.0]\nlet r = A @ v\n"],
+
   // str and format builtins
   ["str of Int", "let x = str(42)\n"],
   ["str of Bool", "let x = str(true)\n"],

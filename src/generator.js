@@ -242,11 +242,11 @@ function runGeneration(program) {
         .reduce((s, v) => s + v, 0)));
 }`)
 
+  const userStart = output.length
   gen(program)
-  const body = output.join("\n")
-  const needsFs = body.includes("__readCsv")
+  const needsFs = output.slice(userStart).join("\n").includes("__readCsv")
   const header  = needsFs ? `import { readFileSync as __readFileSync } from 'node:fs'\n` : ""
-  return { js: header + body, plotItems }
+  return { js: header + output.join("\n"), plotItems }
 }
 
 export default function generate(program) {

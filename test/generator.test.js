@@ -187,6 +187,11 @@ const fixtures = [
     source: "let v: Vec<Float> = [1.0, 2.0, 3.0]\nlet x = slice v(0..2)\n",
     expected: "let v_1 = [1.0, 2.0, 3.0];\nlet x_2 = v_1.slice(0, 2);",
   },
+  {
+    name: "matrix literal",
+    source: "let A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\n",
+    expected: "let A_1 = [[1.0, 2.0], [3.0, 4.0]];",
+  },
 ]
 
 describe("The code generator", () => {

@@ -271,8 +271,13 @@ export default function analyze(match) {
       const r = right.analyze()
       const lType = l.type ?? l
       const rType = r.type ?? r
-      validateNumeric(lType, left.source)
-      validateType(rType, lType, right.source)
+      const eqOps = ["==", "!="]
+      if (eqOps.includes(op.sourceString) && typesEqual(lType, BOOL)) {
+        validateType(rType, BOOL, right.source)
+      } else {
+        validateNumeric(lType, left.source)
+        validateType(rType, lType, right.source)
+      }
       return core.binaryExp(l, op.sourceString, r, BOOL)
     },
 
