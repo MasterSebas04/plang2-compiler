@@ -150,6 +150,9 @@ const semanticErrors = [
   ["Bool in negation", "let x = neg(true)\n", /neg expects/],
   ["Bool in comparison", "let x = true < 1\n", /Expected Int or Float/],
 
+  // Mixed types in arithmetic
+  ["Float * Bool mismatch", "let x = 1.0 * true\n", /Cannot apply/],
+  ["Int + Bool mismatch", "let x = 1 + true\n", /Cannot apply/],
 
   // Functions
   ["wrong number of arguments", "fn f(x: Int) ~> Int {\nreturn x\n}\nlet y = f(1, 2)\n", /Expected 1 arguments/],

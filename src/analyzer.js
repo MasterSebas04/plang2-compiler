@@ -1,6 +1,6 @@
 import * as core from "./core.js"
 
-class Context {
+export class Context {
   constructor(parent = null, returnType = null) {
     this.parent = parent
     this.returnType = returnType ?? parent?.returnType ?? null
@@ -94,10 +94,12 @@ function inferArithmeticType(lType, rType, op, at) {
   error(`Cannot apply ${op} to ${typeString(lType)} and ${typeString(rType)}`, at)
 }
 
-export default function analyze(match) {
-  let context = new Context()
-  for (const [name, fun] of core.builtins) {
-    context.set(name, fun, { getLineAndColumnMessage: () => "" })
+export default function analyze(match, existingContext = null) {
+  let context = existingContext ?? new Context()
+  if (!existingContext) {
+    for (const [name, fun] of core.builtins) {
+      context.set(name, fun, { getLineAndColumnMessage: () => "" })
+    }
   }
 
   const grammar = match.matcher.grammar
