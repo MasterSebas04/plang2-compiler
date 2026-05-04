@@ -10,7 +10,7 @@ Image by [Likozor](https://www.vectorstock.com/royalty-free-vector/funny-cartoon
 Link to our [website](https://mastersebas04.github.io/salamis/)!
 
 ## Introduction
-SALAMIS combines R's statistical power and Python's clean syntax. No longer will you need to import countless libraries for every little thing. SALAMIS is named after its four founders: Sammy, Laith, Marcus, and Sebastian. It's a statically typed language designed to make data, statistics, and probablility-centered programming as easy as slicing salami. It combines familiar tools like variables, functions, loops, and conditionals with support for vectors, matrices, probability distributions, simulation, plotting, and histograms; all with compile-time safety that catches type errors before they ruin your analysis. It is more structured than R, and more math-native than Python, with minimal compromises on either end.
+SALAMIS combines R's statistical power and Python's clean syntax. No longer will you need to import countless libraries for every little thing. SALAMIS is named after its four founders: Sammy, Laith, Marcus, and Sebastian. It's a statically typed language designed to make data, statistics, and probability-centered programming as easy as slicing salami. It combines familiar tools like variables, functions, loops, and conditionals with support for vectors, matrices, probability distributions, simulation, plotting, and histograms; all with compile-time safety that catches type errors before they ruin your analysis. It is more structured than R, and more math-native than Python, with minimal compromises on either end.
 
 ## Language Features
  
@@ -30,8 +30,8 @@ SALAMIS combines R's statistical power and Python's clean syntax. No longer will
 - **Simulation** — `simulate(n) { expr }` runs an expression n times and returns a `Vec<Float>`
 - **Built-in math** — `sqrt`, `log`, `log2`, `log10`, `abs`, `exp`, `floor`, `ceil`, `round`, `sin`, `cos`, `pow`
 - **Built-in stats** — `mean`, `std`, `sum`, `min`, `max`, `len`
-- **String utilities** — `str(x)` converts a value to string; `format(x, n)` formats a float to n decimal places
-- **CSV I/O** — `readCsv("file.csv")` loads a file as `Matrix<Float>`; `col(m, n)` extracts a column as `Vec<Float>`
+- **String utilities** — `str(x)` converts a numeric or Bool value to string; `format(x, n)` formats a float to n decimal places
+- **CSV I/O** — `readCsv("file.csv")` loads a file as `Matrix<Float>`; `col(m, n)` extracts a column as `Vec<Float>`. Header rows are detected and skipped automatically.
 - **Printing** — `print(expr)` outputs any value
 - **Plotting** — `plot(vec1, vec2, ...)` renders a line chart; `histogram(vec)` renders a frequency histogram
 - **Greek letter identifiers** — variable names can use `μ`, `σ`, `λ`, `α`, `β`, `π`, and more
@@ -44,7 +44,7 @@ The SALAMIS compiler performs the following checks before your program ever runs
  
 **Scope & Declaration** — Variables must be declared with `let` before use. Redeclaring a variable in the same scope is an error.
  
-**Type Soundness** — The type of an assigned value must match the declared type of the variable. Conditions in `if` statements and `for` (while-style) loops must be strictly `Bool`.
+**Type Soundness** — The type of an assigned value must match the declared type of the variable. Reassignment is also type-checked — you cannot assign a value of a different type to an existing variable. Conditions in `if` statements and `for` (while-style) loops must be strictly `Bool`.
  
 **Structural Integrity** — Matrix literals are validated at compile time: all rows must have the same length, and all elements must be `Float`.
  
@@ -76,36 +76,53 @@ Compute statistics on a dataset, sample from distributions, and visualize.
  
 ```
 -- stats.sal
- 
+
 let data: Vec<Float> = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]
- 
-let avg     = mean(data)
-let stddev  = sqrt(mean((data - avg) * (data - avg)))
-let lo      = min(data)
-let hi      = max(data)
- 
-print("Mean:     " + format(avg, 2))
+
+-- Basic descriptive statistics
+let avg = mean(data)
+let lo  = min(data)
+let hi  = max(data)
+let total = sum(data)
+let n     = len(data)
+
+print("=== Descriptive Statistics ===")
+print("Mean:  " + format(avg, 2))
+print("Min:   " + format(lo, 2))
+print("Max:   " + format(hi, 2))
+print("Sum:   " + format(total, 2))
+print("Count: " + str(n))
+
+-- Variance and standard deviation using element-wise ops
+let diffs   = data - avg
+let sq      = diffs * diffs
+let variance = mean(sq)
+let stddev   = sqrt(variance)
+
+print("=== Spread ===")
+print("Variance: " + format(variance, 4))
 print("Std dev:  " + format(stddev, 4))
-print("Min:      " + format(lo, 2))
-print("Max:      " + format(hi, 2))
- 
+
 -- Min-max normalization
-let normalized = (data - lo) / (hi - lo)
- 
+let range      = hi - lo
+let normalized = (data - lo) / range
+
 -- Z-score normalization
-let zscores = (data - avg) / stddev
- 
+let zscores = diffs / stddev
+
 -- Sample from all four distribution types
-let normal:    Normal<Float, Float>    = Normal(0.0, 1.0)
-let bernoulli: Bernoulli<Float>        = Bernoulli(0.5)
-let poisson:   Poisson<Float>          = Poisson(3.0)
-let uniform:   Uniform<Float, Float>   = Uniform(0.0, 10.0)
- 
+let normal:    Normal<Float, Float>  = Normal(0.0, 1.0)
+let bernoulli: Bernoulli<Float>      = Bernoulli(0.5)
+let poisson:   Poisson<Float>        = Poisson(3.0)
+let uniform:   Uniform<Float, Float> = Uniform(0.0, 10.0)
+
+print("=== Samples from Distributions ===")
 print("Normal(0,1):    " + format(sample(normal), 4))
 print("Bernoulli(0.5): " + str(sample(bernoulli)))
 print("Poisson(3):     " + str(sample(poisson)))
 print("Uniform(0,10):  " + format(sample(uniform), 4))
- 
+
+-- Visualize raw data, normalized, and z-scores
 plot(data)
 plot(normalized)
 plot(zscores)
@@ -163,38 +180,38 @@ Define reusable normalization functions and compose them with `|>`.
  
 ```
 -- pipeline.sal
- 
+
 fn normalize(v: Vec<Float>) ~> Vec<Float> {
     return (v - min(v)) / (max(v) - min(v))
 }
- 
+
 fn zscore(v: Vec<Float>) ~> Vec<Float> {
     return (v - mean(v)) / std(v)
 }
- 
+
 -- Simulate 500 stock-like daily returns: Normal(mean=2%, std=15%)
 let returns = simulate(500) {
     sample(Normal(0.02, 0.15))
 }
- 
+
 print("=== Raw Returns ===")
 print("Mean: " + format(returns |> mean, 4))
 print("Std:  " + format(returns |> std,  4))
 print("Min:  " + format(returns |> min,  4))
 print("Max:  " + format(returns |> max,  4))
- 
+
 let normed  = returns |> normalize
 let zscored = returns |> zscore
- 
+
 print("=== After Normalization ===")
 print("Mean: " + format(normed |> mean, 4))
 print("Min:  " + format(normed |> min,  4))
 print("Max:  " + format(normed |> max,  4))
- 
+
 print("=== After Z-Scoring ===")
 print("Mean: " + format(zscored |> mean, 4))
 print("Std:  " + format(zscored |> std,  4))
- 
+
 histogram(returns)
 ```
  
@@ -212,27 +229,27 @@ Multiply matrices and vectors with `@`, then extract rows and elements with `sli
  
 ```
 -- matmul_demo.sal
- 
+
 let A: Matrix<Float> = [[6.0, 6.0, 7.0], [8.0, 8.0, 9.0], [3.0, 4.0, 5.0]]
 let B: Matrix<Float> = [[5.0, 6.0, 7.0], [7.0, 8.0, 9.0], [3.0, 4.0, 5.0]]
 let vec_1: Vec<Float> = [8.0, 3.0, 6.0]
- 
+
 let C = A @ B          -- Matrix @ Matrix
 let D = vec_1 @ B      -- Vec @ Matrix
- 
-let row0  = slice C(0)    -- extract first row as Vec<Float>
-let elem  = slice row0(1) -- extract element at index 1
- 
+
+let slice1  = slice C(0)      -- extract first row as Vec<Float>
+let index1  = slice slice1(1) -- extract element at index 1
+
 print(C)
 print(D)
-print(elem)
+print(index1)
 ```
  
 ---
  
 ### 5 — CSV Analysis and Multi-Series Plotting
  
-Load real data from a CSV, compute statistics on columns, and overlay series in one chart.
+Load real data from a CSV, compute statistics on columns, and overlay series in one chart. The header row is detected and skipped automatically.
  
 | SALAMIS | JavaScript |
 |---|---|
@@ -242,37 +259,39 @@ Load real data from a CSV, compute statistics on columns, and overlay series in 
  
 ```
 -- csv_analysis.sal
- 
+
 let m       = readCsv("prices.csv")
 let prices  = col(m, 1)
 let volumes = col(m, 2)
- 
-let avg_price  = mean(prices)
-let lo_price   = min(prices)
-let hi_price   = max(prices)
- 
+
+let avg_price = mean(prices)
+let lo_price  = min(prices)
+let hi_price  = max(prices)
+
 print("=== Price Statistics ===")
 print("Mean:  " + format(avg_price, 2))
 print("Min:   " + format(lo_price,  2))
 print("Max:   " + format(hi_price,  2))
- 
--- Normalize price to [0, 1]
-let norm_prices = (prices - lo_price) / (hi_price - lo_price)
- 
--- Z-score volumes
+
+-- Normalize price to [0, 1] for comparison with volume
+let price_range = hi_price - lo_price
+let norm_prices = (prices - lo_price) / price_range
+
+-- Z-score volumes to center and scale them
 let avg_vol    = mean(volumes)
 let diffs_vol  = volumes - avg_vol
-let stddev_vol = sqrt(mean(diffs_vol * diffs_vol))
+let sq_vol     = diffs_vol * diffs_vol
+let stddev_vol = sqrt(mean(sq_vol))
 let z_volumes  = diffs_vol / stddev_vol
- 
+
 print("=== Volume Statistics ===")
 print("Mean volume: " + format(avg_vol,    0))
 print("Std dev:     " + format(stddev_vol, 0))
- 
--- Overlay raw prices and normalized prices on one chart
+
+-- Prices and normalized prices together on one chart
 plot(prices, norm_prices)
- 
--- Z-scored volumes on a separate chart
+
+-- Z-scored volumes separately (different scale)
 plot(z_volumes)
 ```
  
@@ -298,4 +317,3 @@ plot(prices)
 -- Histogram: how prices are distributed across value ranges
 histogram(prices)
 ```
- 
