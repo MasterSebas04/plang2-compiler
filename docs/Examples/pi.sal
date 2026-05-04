@@ -1,0 +1,12 @@
+let hits: Float = 0.0
+let total_samples: Int = 1000
+
+for i in (0..total_samples) {
+    let x = sample(Uniform(0.0, 1.0))
+    let y = sample(Uniform(0.0, 1.0))
+    if x * x + y * y <= 1.0 {
+        hits = hits + 1.0
+    }
+}
+let pi_est = 4.0 * hits / total_samples
+print("Pi estimate: " + format(pi_est, 4))
