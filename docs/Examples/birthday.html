@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Salamis Output</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }
+    #__output { background: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 0.9rem; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; white-space: pre-wrap; }
+    #__output:empty { display: none; }
+  </style>
+</head>
+<body>
+<div id="__output"></div>
+<canvas id="chart0" style="max-height:400px;margin-bottom:2rem"></canvas>
+<script>
+const __out = document.getElementById('__output');
+const __origLog = console.log;
+console.log = (...args) => {
+  __out.textContent += args.join(' ') + '\n';
+  __origLog(...args);
+};
+function __len(v) { return v.length }
+function __sum(v) { return v.reduce((a, b) => a + b, 0) }
+function __mean(v) { return __sum(v) / v.length }
+function __std(v) { const m = __mean(v); return Math.sqrt(v.reduce((a, x) => a + (x - m) ** 2, 0) / v.length) }
+function __max(v) { return Math.max(...v) }
+function __min(v) { return Math.min(...v) }
+function __Normal(mu, sigma) { return { kind: "Normal", mu, sigma } }
+function __Bernoulli(p) { return { kind: "Bernoulli", p } }
+function __Poisson(lambda) { return { kind: "Poisson", lambda } }
+function __Uniform(a, b) { return { kind: "Uniform", a, b } }
+function __sample(d) {
+  if (d.kind === "Normal") {
+    const u1 = Math.random(), u2 = Math.random()
+    return d.mu + d.sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
+  }
+  if (d.kind === "Bernoulli") return Math.random() < d.p ? 1.0 : 0.0
+  if (d.kind === "Poisson") {
+    const L = Math.exp(-d.lambda)
+    let k = 0, p = 1.0
+    do { k++; p *= Math.random() } while (p > L)
+    return k - 1
+  }
+  if (d.kind === "Uniform") return d.a + Math.random() * (d.b - d.a)
+  throw new Error("Unknown distribution: " + d.kind)
+}
+// CSV helpers — __readCsv returns a 2D array (Matrix<Float>).
+// __readFileSync is injected as an ES module import when CSV is used.
+// If the first row's first cell isn't a number it's treated as a header and skipped.
+function __readCsv(path) {
+  const lines = __readFileSync(path, "utf-8").trim().split(/\r?\n/)
+  const hasHeader = isNaN(parseFloat(lines[0].split(",")[0]))
+  return (hasHeader ? lines.slice(1) : lines)
+    .map(row => row.split(",").map(s => parseFloat(s.trim())))
+}
+function __col(m, n) { return m.map(row => row[n]) }
+function __str(x) { return String(x) }
+function __format(x, n) { return x.toFixed(n) }
+function __matmul(A, B) {
+  if (!Array.isArray(A[0])) {
+    if (A.length !== B.length) throw new Error(`Dimension mismatch: Vec(${A.length}) @ Matrix(${B.length}x${B[0].length})`);
+    return B[0].map((_, c) => A.reduce((s, v, k) => s + v * B[k][c], 0));
+  }
+  if (!Array.isArray(B[0])) {
+    if (A[0].length !== B.length) throw new Error(`Dimension mismatch: Matrix(${A.length}x${A[0].length}) @ Vec(${B.length})`);
+    return A.map(row => row.reduce((s, v, k) => s + v * B[k], 0));
+  }
+  if (A[0].length !== B.length) throw new Error(`Matrix dimension mismatch: (${A.length}x${A[0].length}) @ (${B.length}x${B[0].length})`);
+  const rows = A.length, cols = B[0].length, inner = B.length;
+  return Array.from({length: rows}, (_, r) =>
+    Array.from({length: cols}, (_, c) =>
+      Array.from({length: inner}, (_, k) => A[r][k] * B[k][c])
+        .reduce((s, v) => s + v, 0)));
+}
+function one_trial_1() {
+let bdays_2 = Array.from({length: 100}, () => Math.floor(__sample(__Uniform(0.0, 365.0))));
+let result_3 = 100.0;
+let found_4 = 0.0;
+for (let k_5 = 1; k_5 < 100; k_5++) {
+if ((found_4 === 0.0)) {
+let bday_k_6 = bdays_2[k_5];
+for (let j_7 = 0; j_7 < k_5; j_7++) {
+if ((bdays_2[j_7] === bday_k_6)) {
+if ((found_4 === 0.0)) {
+result_3 = (k_5 + 1.0);
+found_4 = 1.0;
+}
+}
+}
+}
+}
+return result_3;
+}
+let trials_8 = Array.from({length: 100000}, () => one_trial_1());
+console.log(("Mean people needed: " + __format(__mean(trials_8), 2)));
+console.log(("Min: " + __format(__min(trials_8), 0)));
+console.log(("Max: " + __format(__max(trials_8), 0)));
+
+  (function() {
+    const _data = trials_8;
+    const _n = _data.length;
+    const _bins = Math.ceil(Math.log2(_n) + 1);
+    const _lo = Math.min(..._data), _hi = Math.max(..._data);
+    const _width = (_hi - _lo) / _bins || 1;
+    const _counts = Array(_bins).fill(0);
+    _data.forEach(v => {
+      const b = Math.min(Math.floor((v - _lo) / _width), _bins - 1);
+      _counts[b]++;
+    });
+    const _labels = Array.from({length: _bins}, (_, b) =>
+      (_lo + b * _width).toFixed(2) + "–" + (_lo + (b + 1) * _width).toFixed(2));
+    const ctx = document.getElementById('chart0').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: _labels,
+        datasets: [{ label: 'Frequency', data: _counts, borderWidth: 1,
+          backgroundColor: 'rgba(54, 162, 235, 0.7)', borderColor: 'rgb(54, 162, 235)' }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  })();
+</script>
+</body>
+</html>
