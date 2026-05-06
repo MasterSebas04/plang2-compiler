@@ -33,6 +33,20 @@ const BOOL = { kind: "Bool" }
 const STR  = { kind: "Str" }
 const VOID = { kind: "Void" }
 
+function validateArgs(argValues, expectedTypes, name, at) {
+  validate(
+    argValues.length === expectedTypes.length,
+    `${name} expects ${expectedTypes.length} arguments`,
+    at
+  )
+  for (let i = 0; i < expectedTypes.length; i++) {
+    validateType(typeOf(argValues[i]), expectedTypes[i], at)
+  }
+}
+function typeOf(entity) {
+  return entity.type ?? entity
+}
+
 function vecType(inner)    { return { kind: "Vec", inner } }
 function matrixType(inner) { return { kind: "Matrix", inner } }
 function distType(name, params) { return { kind: "Dist", name, params } }
@@ -119,7 +133,7 @@ export default function analyze(match, existingContext = null) {
 
     VarDecl(_let, id, _colon, typeNode, _eq, exp, _newline) {
       const initializer = exp.analyze()
-      let type = initializer.type ?? initializer
+      let type = typeOf(initializer)
       if (typeNode.children.length > 0) {
         const declared = typeNode.children[0].analyze()
         validateType(type, declared, exp.source)
@@ -133,7 +147,7 @@ export default function analyze(match, existingContext = null) {
     AssignStmt(id, _eq, exp, _newline) {
       const target = context.get(id.sourceString, id.source)
       const source = exp.analyze()
-      validateType(source.type ?? source, target.type, id.source)
+      validateType(typeOf(source), target.type, id.source)
       return core.assignStmt(target, source)
     },
 
@@ -170,7 +184,7 @@ export default function analyze(match, existingContext = null) {
     PlotStmt(_plot, _open, exps, _close, _newline) {
       const vals = exps.asIteration().children.map(e => {
         const val = e.analyze()
-        const t = val.type ?? val
+        const t = typeOf(val)
         validate(t.kind === "Vec", `plot expects a Vec, got ${typeString(t)}`, e.source)
         return val
       })
@@ -179,14 +193,14 @@ export default function analyze(match, existingContext = null) {
 
     HistogramStmt(_histogram, _open, exp, _close, _newline) {
       const val = exp.analyze()
-      const t = val.type ?? val
+      const t = typeOf(val)
       validate(t.kind === "Vec", `histogram expects a Vec, got ${typeString(t)}`, exp.source)
       return core.histogramStmt(val)
     },
 
     ReturnStmt(_return, exp, _newline) {
       const value = exp.analyze()
-      const valueType = value.type ?? value
+      const valueType = typeOf(value)
       validate(context.returnType !== null, `Return outside of function`, _return.source)
       validateType(valueType, context.returnType, exp.source)
       return core.returnStmt(value)
@@ -194,7 +208,7 @@ export default function analyze(match, existingContext = null) {
 
     IfStmt_elseif(_if, test, block, _else, alternate) {
       const t = test.analyze()
-      validateBool(t.type ?? t, test.source)
+      validateBool(typeOf(t), test.source)
       const consequent = block.analyze()
       const alt = alternate.analyze()
       return core.ifStmt(t, consequent, [alt])
@@ -202,7 +216,7 @@ export default function analyze(match, existingContext = null) {
 
     IfStmt_long(_if, test, block1, _else, block2) {
       const t = test.analyze()
-      validateBool(t.type ?? t, test.source)
+      validateBool(typeOf(t), test.source)
       const consequent = block1.analyze()
       const alternate = block2.analyze()
       return core.ifStmt(t, consequent, alternate)
@@ -210,7 +224,7 @@ export default function analyze(match, existingContext = null) {
 
     IfStmt_short(_if, test, block) {
       const t = test.analyze()
-      validateBool(t.type ?? t, test.source)
+      validateBool(typeOf(t), test.source)
       const consequent = block.analyze()
       return core.ifStmt(t, consequent, [])
     },
@@ -229,7 +243,7 @@ export default function analyze(match, existingContext = null) {
 
     ForStmt_collection(_for, id, _in, _open, exp, _close, block) {
       const iter = exp.analyze()
-      const iterType = iter.type ?? iter
+      const iterType = typeOf(iter)
       validateVecOrMatrix(iterType, exp.source)
       const elemType = iterType.inner
       const loopContext = new Context(context)
@@ -244,7 +258,7 @@ export default function analyze(match, existingContext = null) {
 
     ForStmt_while(_for, test, block) {
       const t = test.analyze()
-      validateBool(t.type ?? t, test.source)
+      validateBool(typeOf(t), test.source)
       const body = block.analyze()
       return core.whileStmt(t, body)
     },
@@ -252,18 +266,21 @@ export default function analyze(match, existingContext = null) {
     Range(from, _dotdot, to) {
       const f = from.analyze()
       const t = to.analyze()
-      validateType(f.type ?? f, INT, from.source)
-      validateType(t.type ?? t, INT, to.source)
+      validateType(typeOf(f), INT, from.source)
+      validateType(typeOf(t), INT, to.source)
       return core.rangeExp(f, t)
-    },
-
+    }, 
     Exp_pipe(left, _pipe, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const lType = l.type ?? l
+      const lType = typeOf(l)
+      const isFunction = r.kind === "FunctionObject"
+      const hasOneParam = isFunction && r.params.length === 1
+      const paramMatches = hasOneParam && typesEqual(r.params[0].type, lType)
+      const targetName = r.name
       validate(
-        r.kind === "FunctionObject" && r.params.length === 1 && typesEqual(r.params[0].type, lType),
-        `Pipe type mismatch: cannot pipe ${typeString(lType)} into ${r.name ?? "expression"}`,
+        isFunction && hasOneParam && paramMatches,
+        `Pipe type mismatch: cannot pipe ${typeString(lType)} into ${targetName}`,
         _pipe.source
       )
       return core.pipeExp(l, r, r.returnType)
@@ -272,8 +289,8 @@ export default function analyze(match, existingContext = null) {
     Exp1_compare(left, op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const lType = l.type ?? l
-      const rType = r.type ?? r
+      const lType = typeOf(l)
+      const rType = typeOf(r)
       const eqOps = ["==", "!="]
       if (eqOps.includes(op.sourceString) && typesEqual(lType, BOOL)) {
         validateType(rType, BOOL, right.source)
@@ -287,29 +304,29 @@ export default function analyze(match, existingContext = null) {
     Exp2_add(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const type = inferArithmeticType(l.type ?? l, r.type ?? r, "+", left.source)
+      const type = inferArithmeticType(typeOf(l), typeOf(r), "+", left.source)
       return core.binaryExp(l, "+", r, type)
     },
 
     Exp2_sub(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const type = inferArithmeticType(l.type ?? l, r.type ?? r, "-", left.source)
+      const type = inferArithmeticType(typeOf(l), typeOf(r), "-", left.source)
       return core.binaryExp(l, "-", r, type)
     },
 
     Exp3_mul(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const type = inferArithmeticType(l.type ?? l, r.type ?? r, "*", left.source)
+      const type = inferArithmeticType(typeOf(l), typeOf(r), "*", left.source)
       return core.binaryExp(l, "*", r, type)
     },
 
     Exp3_floordiv(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const lType = l.type ?? l
-      const rType = r.type ?? r
+      const lType = typeOf(l)
+      const rType = typeOf(r)
       validate(isNumeric(lType), `Expected numeric, got ${typeString(lType)}`, left.source)
       validate(isNumeric(rType), `Expected numeric, got ${typeString(rType)}`, right.source)
       return core.binaryExp(l, "//", r, INT)
@@ -318,15 +335,15 @@ export default function analyze(match, existingContext = null) {
     Exp3_div(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const type = inferArithmeticType(l.type ?? l, r.type ?? r, "/", left.source)
+      const type = inferArithmeticType(typeOf(l), typeOf(r), "/", left.source)
       return core.binaryExp(l, "/", r, type)
     },
 
     Exp4_matmul(left, _op, right) {
       const l = left.analyze()
       const r = right.analyze()
-      const lType = l.type ?? l
-      const rType = r.type ?? r
+      const lType = typeOf(l)
+      const rType = typeOf(r)
       if (lType.kind === "Vec" && rType.kind === "Matrix") return core.matmulExp(l, r, lType)
       if (lType.kind === "Matrix" && rType.kind === "Vec") return core.matmulExp(l, r, rType)
       validateMatrix(lType, left.source)
@@ -336,7 +353,7 @@ export default function analyze(match, existingContext = null) {
 
     Exp5_negate(_neg, _open, exp, _close) {
       const x = exp.analyze()
-      const t = x.type ?? x
+      const t = typeOf(x)
       validate(
         isNumeric(t) || t.kind === "Vec",
         `neg expects a numeric or Vec, got ${typeString(t)}`,
@@ -347,7 +364,7 @@ export default function analyze(match, existingContext = null) {
 
     Exp5_sliceidrange(_slice, target, _open, range, _close) {
       const t = context.get(target.sourceString, target.source)
-      const tType = t.type ?? t
+      const tType = typeOf(t)
       validateVecOrMatrix(tType, target.source)
       range.analyze()
       return core.sliceExp(t, range.analyze(), tType)
@@ -355,10 +372,10 @@ export default function analyze(match, existingContext = null) {
 
     Exp5_sliceidindex(_slice, target, _open, index, _close) {
       const t = context.get(target.sourceString, target.source)
-      const tType = t.type ?? t
+      const tType = typeOf(t)
       validateVecOrMatrix(tType, target.source)
       const idx = index.analyze()
-      validateType(idx.type ?? idx, INT, index.source)
+      validateType(typeOf(idx), INT, index.source)
       const resultType = tType.kind === "Matrix" ? vecType(tType.inner) : tType.inner
       return core.sliceExp(t, idx, resultType)
     },
@@ -369,7 +386,7 @@ export default function analyze(match, existingContext = null) {
       for (const row of rowArrays) {
         validate(row.length === rowLen, `Matrix rows must all have the same length`, _open.source)
         for (const el of row) {
-          validateType(el.type ?? el, FLOAT, _open.source)
+          validateType(typeOf(el), FLOAT, _open.source)
         }
       }
       return core.matrixLiteral(rowArrays, matrixType(FLOAT))
@@ -382,18 +399,18 @@ export default function analyze(match, existingContext = null) {
     Primary_vec(_open, elements, _close) {
       const items = elements.asIteration().children.map(e => e.analyze())
       if (items.length === 0) error("Empty vector literal", _open.source)
-      const elemType = items[0].type ?? items[0]
+      const elemType = typeOf(items[0])
       for (let i = 1; i < items.length; i++) {
-        validateType(items[i].type ?? items[i], elemType, _open.source)
+        validateType(typeOf(items[i]), elemType, _open.source)
       }
       return core.vecLiteral(items, vecType(elemType))
     },
 
     Primary_simulate(_simulate, _open, count, _close, _lbrace, _nl1, body, _nl2, _rbrace) {
       const n = count.analyze()
-      validateType(n.type ?? n, INT, count.source)
+      validateType(typeOf(n), INT, count.source)
       const b = body.analyze()
-      const bType = b.type ?? b
+      const bType = typeOf(b)
       validate(
         isNumeric(bType),
         `simulate body must return a numeric value, got ${typeString(bType)}`,
@@ -406,7 +423,7 @@ export default function analyze(match, existingContext = null) {
       if (id.sourceString === "str") {
         const argValues = args.asIteration().children.map(a => a.analyze())
         validate(argValues.length === 1, `str expects 1 argument`, id.source)
-        const t = argValues[0].type ?? argValues[0]
+        const t = typeOf(argValues[0])
         validate(
           isNumeric(t) || t.kind === "Bool",
           `str expects a numeric or Bool value, got ${typeString(t)}`,
@@ -416,17 +433,20 @@ export default function analyze(match, existingContext = null) {
       }
       if (id.sourceString === "format") {
         const argValues = args.asIteration().children.map(a => a.analyze())
-        validate(argValues.length === 2, `format expects 2 arguments`, id.source)
-        validateType(argValues[0].type ?? argValues[0], FLOAT, id.source)
-        validateType(argValues[1].type ?? argValues[1], INT, id.source)
+        validateArgs(argValues, [FLOAT, INT], "format", id.source)
         return core.functionCall({ kind: "FunctionObject", name: "format" }, argValues, STR)
       }
       if (id.sourceString === "sample") {
         const argValues = args.asIteration().children.map(a => a.analyze())
-        validate(argValues.length === 1, `sample expects 1 argument`, id.source)
         validate(
-          (argValues[0].type ?? argValues[0]).kind === "Dist",
-          `sample expects a distribution, got ${typeString(argValues[0].type ?? argValues[0])}`,
+          argValues.length === 1,
+          `sample expects 1 argument`,
+          id.source
+        )
+        const argType = typeOf(argValues[0])
+        validate(
+          argType.kind === "Dist",
+          `sample expects a distribution, got ${typeString(argType)}`,
           id.source
         )
         return core.functionCall({ kind: "FunctionObject", name: "sample" }, argValues, FLOAT)
@@ -439,12 +459,13 @@ export default function analyze(match, existingContext = null) {
         `Expected ${fun.params.length} arguments, got ${argValues.length}`,
         id.source
       )
-      for (let i = 0; i < argValues.length; i++) {
-        validateType(argValues[i].type ?? argValues[i], fun.params[i].type, id.source)
+      for (let i = 0; i < fun.params.length; i++) {
+        const actualType = typeOf(argValues[i])
+        const expectedType = fun.params[i].type
+        validateType(actualType, expectedType, id.source)
       }
       return core.functionCall(fun, argValues, fun.returnType)
     },
-
     Primary_id(id) {
       return context.get(id.sourceString, id.source)
     },
@@ -452,7 +473,6 @@ export default function analyze(match, existingContext = null) {
     Primary_parens(_open, exp, _close) {
       return exp.analyze()
     },
-
     Type_int(_) { return INT },
     Type_float(_) { return FLOAT },
     Type_bool(_) { return BOOL },

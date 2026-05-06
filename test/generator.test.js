@@ -192,6 +192,16 @@ const fixtures = [
     source: "let A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\n",
     expected: "let A_1 = [[1.0, 2.0], [3.0, 4.0]];",
   },
+  {
+    name: "matrix matmul forces matrix path",
+    source: "let A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\nlet B = A @ A\n",
+    expected: "let A_1 = [[1.0, 2.0], [3.0, 4.0]];\nlet B_2 = __matmul(A_1, A_1);",
+  },
+  {
+    name: "slice by single index",
+    source: "let v: Vec<Float> = [1.0, 2.0, 3.0]\nlet x = slice v(1)\n",
+    expected: "let v_1 = [1.0, 2.0, 3.0];\nlet x_2 = v_1[1];",
+  },
 ]
 
 describe("The code generator", () => {
