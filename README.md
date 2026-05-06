@@ -9,6 +9,42 @@ Image by [Likozor](https://www.vectorstock.com/royalty-free-vector/funny-cartoon
 
 Link to our [website](https://mastersebas04.github.io/salamis/)!
 
+## Getting Started
+
+**Prerequisites:** Node.js 18 or higher.
+
+**Install:**
+```
+git clone https://github.com/MasterSebas04/salamis.git
+cd salamis
+npm install
+```
+
+**Run a program:**
+```
+node src/salamis.js yourfile.sal
+```
+
+If your program uses `plot()` or `histogram()`, an HTML file is automatically generated and opened in your browser.
+
+**Debug flags** — inspect the compiler pipeline at any stage:
+```
+node src/salamis.js yourfile.sal --parsed      # raw parse tree
+node src/salamis.js yourfile.sal --analyzed    # annotated AST
+node src/salamis.js yourfile.sal --optimized   # after constant folding
+node src/salamis.js yourfile.sal --js          # generated JavaScript
+```
+
+**REPL:**
+```
+node src/salamis.js --repl
+```
+
+**Run tests:**
+```
+npm test
+```
+
 ## Introduction
 SALAMIS combines R's statistical power and Python's clean syntax. No longer will you need to import countless libraries for every little thing. SALAMIS is named after its four founders: Sammy, Laith, Marcus, and Sebastian. It's a statically typed language designed to make data, statistics, and probability-centered programming as easy as slicing salami. It combines familiar tools like variables, functions, loops, and conditionals with support for vectors, matrices, probability distributions, simulation, plotting, and histograms; all with compile-time safety that catches type errors before they ruin your analysis. It is more structured than R, and more math-native than Python, with minimal compromises on either end.
 
@@ -25,6 +61,7 @@ SALAMIS combines R's statistical power and Python's clean syntax. No longer will
 - **Slicing** — `slice v(i)` for index access, `slice v(i..j)` for range slices
 - **Pipe operator** — `|>` to chain single-argument functions cleanly (e.g. `data |> mean`)
 - **Negation** — `neg(x)` for numeric and Vec negation
+- **Floor division** — `//` operator for integer division, always returns `Int` (e.g. `10 // 3` gives `3`)
 - **Distributions** — `Normal(μ, σ)`, `Bernoulli(p)`, `Poisson(λ)`, `Uniform(a, b)`
 - **Sampling** — `sample(dist)` draws one value from any distribution
 - **Simulation** — `simulate(n) { expr }` runs an expression n times and returns a `Vec<Float>`
@@ -317,3 +354,30 @@ plot(prices)
 -- Histogram: how prices are distributed across value ranges
 histogram(prices)
 ```
+
+---
+
+## REPL
+
+SALAMIS includes an interactive REPL for evaluating expressions and statements line by line.
+
+**Start the REPL:**
+```
+node src/salamis.js --repl
+```
+
+**Usage:**
+
+Each line is evaluated immediately. Declarations persist across lines within the session.
+
+```
+> let x = 5
+> let y = x * 2
+> print(y)
+10
+> let data: Vec<Float> = [1.0, 2.0, 3.0]
+> print(mean(data))
+2
+```
+
+Type `exit` or press `Ctrl+C` to quit.
