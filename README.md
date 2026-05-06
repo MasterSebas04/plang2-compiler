@@ -9,6 +9,13 @@ Image by [Likozor](https://www.vectorstock.com/royalty-free-vector/funny-cartoon
 
 Link to our [website](https://mastersebas04.github.io/salamis/)!
 
+## Team
+
+- Sammy Santos
+- Laith Titouah
+- Marcus Razo
+- Sebastian Lange
+
 ## Getting Started
 
 **Prerequisites:** Node.js 18 or higher.
@@ -22,17 +29,19 @@ npm install
 
 **Run a program:**
 ```
-node src/salamis.js yourfile.sal
+node src/salamis.js examples/stats.sal
+node src/salamis.js examples/simulate_demo.sal
+node src/salamis.js examples/pipeline.sal
 ```
 
 If your program uses `plot()` or `histogram()`, an HTML file is automatically generated and opened in your browser.
 
-**Debug flags** — inspect the compiler pipeline at any stage:
+**Stop at any stage of the compiler pipeline and print the result:**
 ```
-node src/salamis.js yourfile.sal --parsed      # raw parse tree
-node src/salamis.js yourfile.sal --analyzed    # annotated AST
-node src/salamis.js yourfile.sal --optimized   # after constant folding
-node src/salamis.js yourfile.sal --js          # generated JavaScript
+node src/salamis.js examples/stats.sal --parsed      # print the raw parse tree (CST)
+node src/salamis.js examples/stats.sal --analyzed    # print the annotated AST after type checking
+node src/salamis.js examples/stats.sal --optimized   # print the AST after constant folding
+node src/salamis.js examples/stats.sal --js          # print the generated JavaScript without running it
 ```
 
 **REPL:**
@@ -83,7 +92,7 @@ The SALAMIS compiler performs the following checks before your program ever runs
  
 **Type Soundness** — The type of an assigned value must match the declared type of the variable. Reassignment is also type-checked — you cannot assign a value of a different type to an existing variable. Conditions in `if` statements and `for` (while-style) loops must be strictly `Bool`.
  
-**Structural Integrity** — Matrix literals are validated at compile time: all rows must have the same length, and all elements must be `Float`.
+**Structural Integrity** — Matrix literals are validated at compile time: all rows must have the same length, and all elements must be `Float`. Jagged matrices are rejected before any code runs.
  
 **Operator Safety** — The `@` operator requires `Vec` or `Matrix` operands on both sides. Arithmetic operators validate that operand types are compatible (numeric, or matching Vec types).
  

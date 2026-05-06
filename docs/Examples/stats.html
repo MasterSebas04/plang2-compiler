@@ -24,6 +24,7 @@ console.log = (...args) => {
 function __len(v) { return v.length }
 function __sum(v) { return v.reduce((a, b) => a + b, 0) }
 function __mean(v) { return __sum(v) / v.length }
+function __std(v) { const m = __mean(v); return Math.sqrt(v.reduce((a, x) => a + (x - m) ** 2, 0) / v.length) }
 function __max(v) { return Math.max(...v) }
 function __min(v) { return Math.min(...v) }
 function __Normal(mu, sigma) { return { kind: "Normal", mu, sigma } }
