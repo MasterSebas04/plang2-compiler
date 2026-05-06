@@ -73,7 +73,6 @@ function __matmul(A, B) {
       Array.from({length: inner}, (_, k) => A[r][k] * B[k][c])
         .reduce((s, v) => s + v, 0)));
 }
-console.log(Math.floor((7.0) / (2.3)));
 function one_trial_1() {
 let bdays_2 = Array.from({length: 100}, () => Math.floor(__sample(__Uniform(0.0, 365.0))));
 let result_3 = 100.0;
