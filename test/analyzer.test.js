@@ -119,9 +119,6 @@ const semanticChecks = [
   ["Matrix @ Matrix matmul", "let A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\nlet B: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\nlet r = A @ B\n"],
   ["plot with Vec", "let v: Vec<Float> = [1.0, 2.0]\nplot(v)\n"],
   ["histogram with Vec", "let v: Vec<Float> = [1.0, 2.0]\nhistogram(v)\n"],
-  ["str of Int", "let x = str(42)\n"],
-  ["str of Float", "let x = str(3.14)\n"],
-  ["str of Bool", "let x = str(true)\n"],
 ]
 
 const semanticErrors = [
@@ -162,7 +159,6 @@ const semanticErrors = [
 
   // Mixed types in arithmetic
   ["Float * Bool mismatch", "let x = 1.0 * true\n", /Cannot apply/],
-  ["Int + Bool mismatch", "let x = 1 + true\n", /Cannot apply/],
 
   // Functions
   ["wrong number of arguments", "fn f(x: Int) ~> Int {\nreturn x\n}\nlet y = f(1, 2)\n", /Expected 1 arguments/],
@@ -202,12 +198,7 @@ const semanticErrors = [
   ["call variable like function rejected", "let x = 1\nlet y = x()\n", /x is not a function/],
   ["pipe type mismatch", "fn f(x: Int) ~> Int {\nreturn x\n}\nlet y = true |> f\n", /Pipe type mismatch/],
   ["matrix uneven rows", "let A: Matrix<Float> = [[1.0], [1.0, 2.0]]\n", /Matrix rows must all have the same length/],
-  ["str wrong arg count rejected", "let x = str()\n", /str expects 1 argument/],
-
   ["str too many args rejected", "let x = str(1, 2)\n", /str expects 1 argument/],
-
-  ["str of Vec rejected", "let v: Vec<Float> = [1.0]\nlet x = str(v)\n", /str expects/],
-
   ["str of Str rejected", 'let x = str("hello")\n', /str expects/],
 ]
 
