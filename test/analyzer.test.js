@@ -112,6 +112,13 @@ const semanticChecks = [
   ["Int / Int gives Float", "let x: Float = 10 / 3\n"],
   ["floor division Int // Int", "let x: Int = 10 // 3\n"],
 
+  ["function call with mixed typed args", "fn f(x: Int, y: Bool) ~> Int {\nreturn x\n}\nlet z = f(1, true)\n"],
+  ["Bool equality", "let x = true == false\n"],
+  ["Bool inequality", "let x = true != true\n"],
+  ["str of Float", "let x = str(3.14)\n"],
+  ["Matrix @ Matrix matmul", "let A: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\nlet B: Matrix<Float> = [[1.0, 2.0], [3.0, 4.0]]\nlet r = A @ B\n"],
+  ["plot with Vec", "let v: Vec<Float> = [1.0, 2.0]\nplot(v)\n"],
+  ["histogram with Vec", "let v: Vec<Float> = [1.0, 2.0]\nhistogram(v)\n"],
 ]
 
 const semanticErrors = [
@@ -173,6 +180,26 @@ const semanticErrors = [
 
   // Empty vector literal
   ["empty vector literal", "let v: Vec<Float> = []\n", /Empty vector/],
+
+  ["wrong function arg type first of two params", "fn f(x: Bool, y: Int) ~> Int {\nreturn y\n}\nlet z = f(1, 2)\n", /Type mismatch/],
+  ["wrong function arg type second of two params", "fn f(x: Int, y: Bool) ~> Int {\nreturn x\n}\nlet z = f(1, 2)\n", /Type mismatch/],
+  ["format first arg Bool rejected", "let x = format(true, 2)\n", /Type mismatch/],
+  ["format second arg Float rejected", "let x = format(3.14, 2.5)\n", /Type mismatch/],
+  ["format wrong arg count rejected", "let x = format(3.14)\n", /format expects 2 arguments/],
+  ["str wrong arg count rejected", "let x = str()\n", /str expects 1 argument/],
+  ["str of Vec rejected", "let v: Vec<Float> = [1.0]\nlet x = str(v)\n", /str expects/],
+
+  ["sample wrong arg count rejected", "let x = sample()\n", /sample expects 1 argument/],
+
+  ["slice non-Vec rejected", "let x = 5\nlet y = slice x(0)\n", /Expected Vec or Matrix/],
+  ["slice index must be Int", "let v: Vec<Float> = [1.0, 2.0]\nlet x = slice v(1.5)\n", /Type mismatch/],
+
+  ["Vec @ Vec rejected", "let v: Vec<Float> = [1.0, 2.0]\nlet w: Vec<Float> = [3.0, 4.0]\nlet r = v @ w\n", /Expected Matrix type/],
+
+  ["call variable like function rejected", "let x = 1\nlet y = x()\n", /x is not a function/],
+  ["pipe type mismatch", "fn f(x: Int) ~> Int {\nreturn x\n}\nlet y = true |> f\n", /Pipe type mismatch/],
+  ["matrix uneven rows", "let A: Matrix<Float> = [[1.0], [1.0, 2.0]]\n", /Matrix rows must all have the same length/],
+
 ]
 
 describe("The analyzer", () => {
